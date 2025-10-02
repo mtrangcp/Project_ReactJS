@@ -1,0 +1,49 @@
+{
+  "users": [
+    {
+      "id": "USER_001",
+      "username": "jonh doe",
+      "email": "john@gmail.com",
+      "password": "john12345",
+      "created_at": "2025-02-28T12:00:00Z"
+    }
+  ],
+  "boards": [
+    {
+      "id": "BOARD_001",
+      "user_id": "USER_001",
+      "title": "Dự án Website",
+      "description": "Quản lý tiến độ dự án Website",
+      "backdrop": "https://img.freepik.com/free-photo/empty-industrial-room-interior-design_53876-128649.jpg",
+      "is_started": true,
+      "created_at": "2025-02-28T12:30:00Z"
+    }
+  ],
+  "lists": [
+    {
+      "id": "LIST_001",
+      "board_id": "BROAD_001",
+      "title": "Việc cần làm",
+      "created_at": "2025-02-28T13:00:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "TASK_001",
+      "list_id": "LIST_001",
+      "title": "Thiết kế giao diện",
+      "description": "Tạo wireframe cho trang chủ",
+      "status": "pending",
+      "due_date": "2025-03-05T23:59:59Z",
+      "created_at": "2025-02-28T12:30:00Z"
+    }
+  ],
+  "tags": [
+    {
+      "id": "TAG_001",
+      "task_id": "TASK_001",
+      "content": "Urgent",
+      "color": "#fff"
+    }
+  ]
+}
