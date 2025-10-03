@@ -32,19 +32,11 @@ body {
 }
 
 .ip-email .MuiOutlinedInput-root {
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-
-  border-bottom-left-radius: 0px;
-  border-bottom-right-radius: 0px;
+  border-radius: 6px 6px 0 0;
 }
 
 .ip-pass .MuiOutlinedInput-root {
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
+  border-radius: 0 0 6px 6px;
 }
 
 .div-chb {

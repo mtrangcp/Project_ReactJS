@@ -52,6 +52,7 @@ export default function Register() {
           className="ip-email"
           label="Email address"
           type="email"
+          margin="none"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -60,6 +61,7 @@ export default function Register() {
           className="ip-username"
           label="Username"
           type="text"
+          margin="none"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
@@ -68,6 +70,7 @@ export default function Register() {
           className="ip-pass"
           label="Password"
           type="password"
+          margin="none"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
