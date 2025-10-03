@@ -16,6 +16,7 @@ body {
 
 .login-container {
   width: 298px;
+  margin: auto;
 }
 
 .login-container img {
@@ -30,20 +31,6 @@ body {
   margin-bottom: 17.59px;
   margin-top: 24px;
 }
-
-/* .ip-email .MuiOutlinedInput-notchedOutline {
-  border-radius: 6px 6px 0 0;
-}
-
-.ip-username .MuiOutlinedInput-notchedOutline {
-  border-top: none;
-  border-radius: 0;
-}
-
-.ip-pass .MuiOutlinedInput-notchedOutline {
-  border-top: none;
-  border-radius: 0 0 6px 6px;
-} */
 
 .ip-email.MuiFormControl-root,
 .ip-username.MuiFormControl-root,

@@ -16,6 +16,7 @@ body {
 
 .login-container {
   width: 298px;
+  margin: auto;
 }
 
 .login-container img {

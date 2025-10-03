@@ -93,8 +93,8 @@ body {
 }
 
 .workspaces .boards .item:hover {
-  opacity: 0.6;
   cursor: pointer;
+  background-color: #6c757d;
 }
 
 .workspaces .boards img {
@@ -509,7 +509,7 @@ body {
   }
 
   .main {
-    width: fit-content;
+    width: 100%;
     margin-left: 0;
   }
 
@@ -558,7 +558,7 @@ body {
   }
 
   .main {
-    width: fit-content;
+    width: 100%;
     margin-left: 0;
   }
 

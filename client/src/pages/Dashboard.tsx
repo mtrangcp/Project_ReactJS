@@ -15,12 +15,8 @@ import btnSelectIcon from "../assets/icons/btn-select.png";
 import toggleSearchIcon from "../assets/icons/toggle-search.png";
 import toggleNavigationIcon from "../assets/icons/toggle-navigation.png";
 import editBoard from "../assets/icons/edit-board.png";
-import { useState } from "react";
 
 export default function Dashboard() {
-  const [showCreateModal] = useState<boolean>(false);
-  const [showEditModal] = useState<boolean>(false);
-
   return (
     <>
       <header className="header">
@@ -142,7 +138,8 @@ export default function Dashboard() {
         </main>
       </div>
 
-      {/* <div
+      {/*  */}
+      <div
         className="offcanvas offcanvas-end"
         tabIndex={-1}
         id="offcanvasRight"
@@ -186,109 +183,123 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
 
       {/* Modal Create new board */}
-      {showCreateModal && (
-        <div className="modal fade" id="createModalBoard" tabIndex={-1}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h1 className="modal-title fs-5">Create board</h1>
-                <button type="button" className="btn-close" />
-              </div>
-              <div className="modal-body">
-                <div className="modal-background">
-                  <p>Background</p>
-                  <div className="list-background" id="list-bg-create"></div>
-                </div>
 
-                <div className="modal-background">
-                  <p>Color</p>
-                  <div className="list-background" id="list-color-create"></div>
-                </div>
+      <div className="modal fade" id="createModalBoard" tabIndex={-1}>
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5">Create board</h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              />
+            </div>
+            <div className="modal-body">
+              <div className="modal-background">
+                <p>Background</p>
+                <div className="list-background" id="list-bg-create"></div>
+              </div>
 
-                <div className="modal-title">
-                  <p>
-                    Board title <span>*</span>
-                  </p>
-                  <div className="title">
-                    <input
-                      id="boardTitle"
-                      type="text"
-                      placeholder="E.g. Shopping list for birthday..."
-                    />
-                    <p>👋 Please provide a valid board title.</p>
-                  </div>
+              <div className="modal-background">
+                <p>Color</p>
+                <div className="list-background" id="list-color-create"></div>
+              </div>
+
+              <div className="modal-title">
+                <p>
+                  Board title <span>*</span>
+                </p>
+                <div className="title">
+                  <input
+                    id="boardTitle"
+                    type="text"
+                    placeholder="E.g. Shopping list for birthday..."
+                  />
+                  <p>👋 Please provide a valid board title.</p>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn my-btn-close">
-                  Close
-                </button>
-                <button
-                  type="button"
-                  id="btnCreateBoard"
-                  className="btn my-btn-create"
-                >
-                  Create
-                </button>
-              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn my-btn-close"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                id="btnCreateBoard"
+                className="btn my-btn-create"
+              >
+                Create
+              </button>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Modal Update board */}
-      {showEditModal && (
-        <div className="modal fade" id="scrollModalEdit" tabIndex={-1}>
-          <div className="modal-dialog modal-dialog-scrollable">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h1 className="modal-title fs-5">Update board</h1>
-                <button type="button" className="btn-close" />
-              </div>
-              <div className="modal-body">
-                <div className="modal-background">
-                  <p>Background</p>
-                  <div className="list-background" id="list-bg-up"></div>
-                </div>
 
-                <div className="modal-background">
-                  <p>Color</p>
-                  <div className="list-background" id="list-color-up"></div>
-                </div>
+      <div className="modal fade" id="scrollModalEdit" tabIndex={-1}>
+        <div className="modal-dialog modal-dialog-scrollable">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5">Update board</h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              />
+            </div>
+            <div className="modal-body">
+              <div className="modal-background">
+                <p>Background</p>
+                <div className="list-background" id="list-bg-up"></div>
+              </div>
 
-                <div className="modal-title">
-                  <p>
-                    Board title <span>*</span>
-                  </p>
-                  <div className="title">
-                    <input
-                      id="boardTitleUpdate"
-                      type="text"
-                      placeholder="Board 01..."
-                    />
-                    <p>👋 Please provide a valid board title.</p>
-                  </div>
+              <div className="modal-background">
+                <p>Color</p>
+                <div className="list-background" id="list-color-up"></div>
+              </div>
+
+              <div className="modal-title">
+                <p>
+                  Board title <span>*</span>
+                </p>
+                <div className="title">
+                  <input
+                    id="boardTitleUpdate"
+                    type="text"
+                    placeholder="Board 01..."
+                  />
+                  <p>👋 Please provide a valid board title.</p>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn my-btn-close">
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  id="btnUpdateBoard"
-                  className="btn my-btn-create"
-                >
-                  Save
-                </button>
-              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn my-btn-close"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                id="btnUpdateBoard"
+                className="btn my-btn-create"
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 }
