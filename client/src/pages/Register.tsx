@@ -3,6 +3,7 @@ import { TextField, Button, Box } from "@mui/material";
 import Toastify from "toastify-js";
 import logo from "../assets/images/trello-logo.png";
 import "../css/Register.css";
+import { Link } from "react-router-dom";
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
@@ -76,7 +77,7 @@ export default function Register() {
         />
 
         <div className="form-p">
-          Already have an account, <a href="/register">click here !</a>
+          Already have an account, <Link to="/login">click here !</Link>
         </div>
 
         <Button

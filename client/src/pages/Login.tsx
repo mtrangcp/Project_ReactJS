@@ -9,6 +9,7 @@ import {
 import Toastify from "toastify-js";
 import logo from "../assets/images/trello-logo.png";
 import "../css/login.css";
+import { Link } from "react-router-dom";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -82,7 +83,7 @@ export default function Login() {
         />
 
         <div className="form-p">
-          Don't have an account, <a href="/register">click here !</a>
+          Don't have an account, <Link to="/register">click here !</Link>
         </div>
 
         <Button

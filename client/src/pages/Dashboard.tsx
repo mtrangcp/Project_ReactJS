@@ -14,6 +14,7 @@ import calenderIcon from "../assets/icons/calender.png";
 import btnSelectIcon from "../assets/icons/btn-select.png";
 import toggleSearchIcon from "../assets/icons/toggle-search.png";
 import toggleNavigationIcon from "../assets/icons/toggle-navigation.png";
+import editBoard from "../assets/icons/edit-board.png";
 import { useState } from "react";
 
 export default function Dashboard() {
@@ -21,7 +22,7 @@ export default function Dashboard() {
   const [showEditModal] = useState<boolean>(false);
 
   return (
-    <div>
+    <>
       <header className="header">
         <div className="div-logo">
           <img src={trelloLogoFull} alt="img full logo" />
@@ -105,20 +106,20 @@ export default function Dashboard() {
 
           {/*  */}
           <div className="listBoards" id="listBoard">
-            {/* <div class="item-boards" style={{ backgroundColor = "red" }}>
+            <div className="item-boards" style={{ backgroundColor: "red" }}>
               <p>abc abc</p>
 
               <div
-                class="edit-board"
+                className="edit-board"
                 data-bs-toggle="modal"
                 data-bs-target="#scrollModalEdit"
               >
-                <img src="../assets/icons/edit-board.png" alt="img edit" />
+                <img src={editBoard} alt="img edit" />
                 <span>Edit this board</span>
               </div>
 
-              <i class="fa-solid fa-star" onclick="markStarBoard()"></i>
-            </div> */}
+              <i className="fa-solid fa-star"></i>
+            </div>
           </div>
 
           <div className="yourWorkspaces" id="starred-title">
@@ -288,6 +289,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
