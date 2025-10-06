@@ -211,7 +211,6 @@
   border: none;
   border-radius: 4px;
   box-shadow: 0px 0px 0px 1px #8590a2 inset;
-  display: none;
 }
 
 .main-detail .toDo-list .item-toDo .heading input:focus {

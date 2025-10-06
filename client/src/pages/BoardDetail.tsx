@@ -1,6 +1,9 @@
 import "../css/BoardDetail.css";
 import "../css/GeneralStyle.css";
 
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
 import trelloLogoFull from "../assets/images/trello-logo-full.png";
 import boardsIcon from "../assets/icons/boards.png";
 import starredBoardsIcon from "../assets/icons/starredBoards.png";
@@ -22,16 +25,60 @@ import dateIcon from "../assets/icons/icon-date.png";
 import delTaskIcon from "../assets/icons/icon-del-task.png";
 import btnBlack from "../assets/icons/btn-back.png";
 import penEdit from "../assets/icons/pen-edit.png";
-import { useState } from "react";
+import arrowIcon from "../assets/icons/icon-arrow.png";
+import moreIcon from "../assets/icons/icon-more.png";
+import addCardIcon from "../assets/icons/add-card.png";
+
+import { useEffect, useRef, useState } from "react";
 
 export default function BoardDetail() {
+  // handle add list
   const [showTitleAddList, setShowTitleAddList] = useState<boolean>(true);
   const [showAddList, setShowAddList] = useState<boolean>(false);
+  // edit title list
+  const [showTitleList, setShowTitleList] = useState<boolean>(true);
+  const [showInputEditTitleList, setInputEditTitleList] =
+    useState<boolean>(false);
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const spanRef = useRef<HTMLSpanElement | null>(null);
+  const titleWrapperRef = useRef<HTMLDivElement | null>(null);
+
+  // handle card
+  const [showTitleAddCard, setShowTitleAddCard] = useState<boolean>(true);
+  const [showAddCard, setShowAddCard] = useState<boolean>(false);
 
   const handleShowAddList = () => {
     setShowAddList(!showAddList);
     setShowTitleAddList(!showTitleAddList);
   };
+
+  const handleShowAddCard = () => {
+    setShowAddCard(!showAddCard);
+    setShowTitleAddCard(!showTitleAddCard);
+  };
+
+  const handleEditTitleList = () => {
+    setShowTitleList(!showTitleList);
+    setInputEditTitleList(!showInputEditTitleList);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (
+        titleWrapperRef.current &&
+        !titleWrapperRef.current.contains(target)
+      ) {
+        setShowTitleList(true);
+        setInputEditTitleList(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -73,7 +120,9 @@ export default function BoardDetail() {
                 {/* list board */}
                 <div className="item">
                   <div className="img"></div>
-                  <span className="title-clamp">Board Title 01</span>
+                  <span className="title-clamp">
+                    Tổ chức sự kiện Year-end party !
+                  </span>
                   {/* <i
                     className="fa-solid fa-star star-black"
                     // onclick="removeStar()"
@@ -128,7 +177,227 @@ export default function BoardDetail() {
           </div>
 
           <div className="toDo-list" id="toDo-lists">
+            {/* list danh cong vc */}
+            <div className="item-toDo">
+              <div className="heading" ref={titleWrapperRef}>
+                {showInputEditTitleList && (
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    className="updateTitleList"
+                    placeholder="Todo"
+                    autoFocus
+                  />
+                )}
+                {showTitleList && (
+                  <span
+                    ref={spanRef}
+                    onClick={handleEditTitleList}
+                    className="titleList"
+                  >
+                    Todo
+                  </span>
+                )}
+                <div className="icon-util">
+                  <img className="icon-arrow" src={arrowIcon} alt="arrow" />
+                  <img className="icon-more" src={moreIcon} alt="more" />
+                </div>
+              </div>
+
+              <div className="list-item" id="list-item-task">
+                <div
+                  className="one-item"
+                  data-bs-toggle="modal"
+                  data-bs-target="#taskDetailModal"
+                >
+                  <i
+                    id="statusTask"
+                    className="fa-solid fa-circle-check check-active"
+                    // onclick="updateStatusTask(${index},${indexTask})"
+                  ></i>
+                  <span
+                    data-list-index="${index}"
+                    data-task-index="${indexTask}"
+                    // onclick="openTaskDetailModal(${index}, ${indexTask})"
+                  >
+                    Thuê DJ
+                  </span>
+                </div>
+
+                <div className="one-item">
+                  <i
+                    id="statusTask"
+                    className="fa-solid fa-circle-check check-active"
+                    // onclick="updateStatusTask(${index},${indexTask})"
+                  ></i>
+                  <span
+                    data-list-index="${index}"
+                    data-task-index="${indexTask}"
+                    // onclick="openTaskDetailModal(${index}, ${indexTask})"
+                  >
+                    Lên kịch bản chương trình
+                  </span>
+                </div>
+
+                <div className="one-item">
+                  <i
+                    id="statusTask"
+                    className="fa-solid fa-circle-check"
+                    // onclick="updateStatusTask(${index},${indexTask})"
+                  ></i>
+                  <span
+                    data-list-index="${index}"
+                    data-task-index="${indexTask}"
+                    // onclick="openTaskDetailModal(${index}, ${indexTask})"
+                  >
+                    Chuẩn bị kịch
+                  </span>
+                </div>
+
+                <div className="one-item">
+                  <i
+                    id="statusTask"
+                    className="fa-solid fa-circle-check check-active"
+                    // onclick="updateStatusTask(${index},${indexTask})"
+                  ></i>
+                  <span
+                    data-list-index="${index}"
+                    data-task-index="${indexTask}"
+                    // onclick="openTaskDetailModal(${index}, ${indexTask})"
+                  >
+                    Kịch bản
+                  </span>
+                </div>
+
+                <div className="one-item">
+                  <i
+                    id="statusTask"
+                    className="fa-solid fa-circle-check"
+                    // onclick="updateStatusTask(${index},${indexTask})"
+                  ></i>
+                  <span
+                    data-list-index="${index}"
+                    data-task-index="${indexTask}"
+                    // onclick="openTaskDetailModal(${index}, ${indexTask})"
+                  >
+                    Thuê MC
+                  </span>
+                </div>
+              </div>
+
+              <div className="last-item">
+                {showTitleAddCard && (
+                  <div className="part-show">
+                    <button
+                      className="btnShowAddCard"
+                      onClick={handleShowAddCard}
+                    >
+                      <img src={btnAdd} alt="icon-add" />
+                      <span>Add card</span>
+                    </button>
+                    <img
+                      className="iconDelList"
+                      // onClick="getIndexDel(${index})"
+                      src={addCardIcon}
+                      alt="icon-add-card"
+                      data-bs-toggle="modal"
+                      data-bs-target="#closeListModal"
+                    />
+                  </div>
+                )}
+
+                {showAddCard && (
+                  <div className="addAnotherCard">
+                    <textarea
+                      placeholder="Add a card"
+                      className="inputTitleCard"
+                    ></textarea>
+
+                    <div className="confirm-add">
+                      <button className="btnAddCard">Add a card</button>
+                      <span
+                        className="spanCloseCard"
+                        onClick={handleShowAddCard}
+                      >
+                        ✖︎
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* <div className="item-toDo">
+              <div className="heading">
+                {showInputEditTitleList && (
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    className="updateTitleList"
+                    placeholder="Todo"
+                    autoFocus
+                  />
+                )}
+
+                {showTitleList && (
+                  <span
+                    ref={spanRef}
+                    onClick={handleEditTitleList}
+                    className="titleList"
+                  >
+                    In-progress
+                  </span>
+                )}
+                <div className="icon-util">
+                  <img className="icon-arrow" src={arrowIcon} alt="arrow" />
+                  <img className="icon-more" src={moreIcon} alt="more" />
+                </div>
+              </div>
+
+              <div className="last-item">
+                {showTitleAddCard && (
+                  <div className="part-show">
+                    <button
+                      className="btnShowAddCard"
+                      onClick={handleShowAddCard}
+                    >
+                      <img src={btnAdd} alt="icon-add" />
+                      <span>Add card</span>
+                    </button>
+                    <img
+                      className="iconDelList"
+                      // onClick="getIndexDel(${index})"
+                      src={addCardIcon}
+                      alt="icon-add-card"
+                      data-bs-toggle="modal"
+                      data-bs-target="#closeListModal"
+                    />
+                  </div>
+                )}
+
+                {showAddCard && (
+                  <div className="addAnotherCard">
+                    <textarea
+                      placeholder="Add a card"
+                      className="inputTitleCard"
+                    ></textarea>
+
+                    <div className="confirm-add">
+                      <button className="btnAddCard">Add a card</button>
+                      <span
+                        className="spanCloseCard"
+                        onClick={handleShowAddCard}
+                      >
+                        ✖︎
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div> */}
+
             {/*  */}
+
             <div className="item-toDo last-item-list">
               <div className="last-item">
                 {showTitleAddList && (
@@ -349,17 +618,24 @@ export default function BoardDetail() {
                   </div>
                 </div>
               </div>
+
               <div className="content">
-                <div className="main-modal">
+                <div className="main-detail-modal">
                   <div className="title">
                     <img src={describeIcon} alt="describe" />
                     <span>Description</span>
                   </div>
+
                   <div className="input-content">
-                    <textarea
-                      id="editor"
-                      style={{ height: 300 }}
-                      defaultValue={""}
+                    <CKEditor
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-expect-error
+                      editor={ClassicEditor}
+                      data="<p>Nội dung task</p>"
+                      onChange={(event, editor) => {
+                        const data = editor.getData();
+                        console.log(data);
+                      }}
                     />
                     <div className="btn-group">
                       <button id="saveUpdateTask">Save</button>
@@ -367,6 +643,7 @@ export default function BoardDetail() {
                     </div>
                   </div>
                 </div>
+
                 <div className="aside-modal">
                   {/* onclick="openEditLabelModal()" */}
                   <div className="labels">
