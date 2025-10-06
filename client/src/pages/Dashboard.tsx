@@ -103,7 +103,7 @@ export default function Dashboard() {
           {/*  */}
           <div className="listBoards" id="listBoard">
             <div className="item-boards" style={{ backgroundColor: "red" }}>
-              <p>abc abc</p>
+              <p>Board Title 01</p>
 
               <div
                 className="edit-board"
@@ -115,6 +115,14 @@ export default function Dashboard() {
               </div>
 
               <i className="fa-solid fa-star"></i>
+            </div>
+
+            <div
+              className="item-default"
+              data-bs-toggle="modal"
+              data-bs-target="#createModalBoard"
+            >
+              <p>Create new board</p>
             </div>
           </div>
 
