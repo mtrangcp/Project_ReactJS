@@ -1,4 +1,5 @@
 import "../css/BoardDetail.css";
+import "../css/GeneralStyle.css";
 
 import trelloLogoFull from "../assets/images/trello-logo-full.png";
 import boardsIcon from "../assets/icons/boards.png";
@@ -21,8 +22,17 @@ import dateIcon from "../assets/icons/icon-date.png";
 import delTaskIcon from "../assets/icons/icon-del-task.png";
 import btnBlack from "../assets/icons/btn-back.png";
 import penEdit from "../assets/icons/pen-edit.png";
+import { useState } from "react";
 
 export default function BoardDetail() {
+  const [showTitleAddList, setShowTitleAddList] = useState<boolean>(true);
+  const [showAddList, setShowAddList] = useState<boolean>(false);
+
+  const handleShowAddList = () => {
+    setShowAddList(!showAddList);
+    setShowTitleAddList(!showTitleAddList);
+  };
+
   return (
     <>
       <header className="header">
@@ -34,6 +44,7 @@ export default function BoardDetail() {
           <img src={trelloLogoFull} alt="img full logo" />
         </div>
       </header>
+
       <div className="my-container">
         <aside className="aside">
           <p>YOUR WORKSPACES</p>
@@ -78,7 +89,7 @@ export default function BoardDetail() {
           </div>
         </aside>
 
-        <main className="main">
+        <main className="main-detail">
           <div className="overlay-title">
             <div className="over-left">
               <span className="title" id="board-name">
@@ -115,28 +126,36 @@ export default function BoardDetail() {
               <span>Filters</span>
             </div>
           </div>
+
           <div className="toDo-list" id="toDo-lists">
             {/*  */}
             <div className="item-toDo last-item-list">
               <div className="last-item">
-                <div className="part-show" id="btnShowAddList">
-                  <button>
-                    <img src={btnAdd} alt="icon-add" />
-                    <span>Add another list</span>
-                  </button>
-                </div>
-                <div className="addAnotherList">
-                  <input
-                    autoFocus={true}
-                    type="text"
-                    placeholder="Add another list"
-                    id="inputAddList"
-                  />
-                  <div className="confirm-add">
-                    <button id="btnAddList">Add another list</button>
-                    <span id="spanClose">✖︎</span>
+                {showTitleAddList && (
+                  <div className="part-show" id="btnShowAddList">
+                    <button onClick={handleShowAddList}>
+                      <img src={btnAdd} alt="icon-add" />
+                      <span>Add another list</span>
+                    </button>
                   </div>
-                </div>
+                )}
+
+                {showAddList && (
+                  <div className="addAnotherList">
+                    <input
+                      autoFocus={true}
+                      type="text"
+                      placeholder="Add another list"
+                      id="inputAddList"
+                    />
+                    <div className="confirm-add">
+                      <button id="btnAddList">Add another list</button>
+                      <span id="spanClose" onClick={handleShowAddList}>
+                        ✖︎
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import "../css/Dashboard.css";
-// import "toastify-js/src/toastify.min.css";
+import "../css/GeneralStyle.css";
 
 import trelloLogoFull from "../assets/images/trello-logo-full.png";
 import boardsIcon from "../assets/icons/boards.png";
