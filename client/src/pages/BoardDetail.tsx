@@ -62,7 +62,7 @@ export default function BoardDetail() {
                 {/* list board */}
                 <div className="item">
                   <div className="img"></div>
-                  <span className="title-clamp">abc abc</span>
+                  <span className="title-clamp">Board Title 01</span>
                   {/* <i
                     className="fa-solid fa-star star-black"
                     // onclick="removeStar()"

@@ -111,7 +111,7 @@ body {
 
 .main {
   height: 100vh;
-  padding: 16px 24px;
+  padding: 16px 24px !important;
 
   width: calc(100% - (100% / 6));
   margin-left: calc(100% / 6);
@@ -457,6 +457,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.modal-footer .my-btn-close,
+.modal-footer .my-btn-create {
+  background-color: white !important;
 }
 
 @media screen and (min-width: 848px) and (max-width: 960px) {

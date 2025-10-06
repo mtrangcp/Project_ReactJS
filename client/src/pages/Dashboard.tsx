@@ -16,6 +16,11 @@ import toggleSearchIcon from "../assets/icons/toggle-search.png";
 import toggleNavigationIcon from "../assets/icons/toggle-navigation.png";
 import editBoard from "../assets/icons/edit-board.png";
 
+import bgBoard1 from "../assets/images/board-title1.jpg";
+import bgBoard2 from "../assets/images/board-title2.jpg";
+import bgBoard3 from "../assets/images/board-title3.jpg";
+import bgBoard4 from "../assets/images/board-title4.jpg";
+
 export default function Dashboard() {
   return (
     <>
@@ -209,12 +214,105 @@ export default function Dashboard() {
             <div className="modal-body">
               <div className="modal-background">
                 <p>Background</p>
-                <div className="list-background" id="list-bg-create"></div>
+                <div className="list-background" id="list-bg-create">
+                  {/* bg-img */}
+                  <div className="item-bg bg-item item-bg-update">
+                    <img className="img-bg" src={bgBoard1} alt="img1" />
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  <div className="item-bg bg-item item-bg-update">
+                    <img className="img-bg" src={bgBoard2} alt="img1" />
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  <div className="item-bg bg-item item-bg-update">
+                    <img className="img-bg" src={bgBoard3} alt="img1" />
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  <div className="item-bg bg-item item-bg-update">
+                    <img className="img-bg" src={bgBoard4} alt="img1" />
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+                </div>
               </div>
 
               <div className="modal-background">
                 <p>Color</p>
-                <div className="list-background" id="list-color-create"></div>
+                <div className="list-background" id="list-color-create">
+                  {/* bg-locor */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="1" // Đổi 'data' thành 'data-id' hoặc 'data-tên-gì-đó' để tuân thủ quy tắc thuộc tính `data-*` trong React/JSX
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #ffb100 0%, #fa0c00 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  {/* Màu 2: Xanh dương đến Tím */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="2"
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #2609ff 0%, #d20cff 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  {/* Màu 3: Xanh lá cây đến Xanh ngọc */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="3"
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #00ff2f 0%, #00ffc8 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  {/* Màu 4: Xanh ngọc đến Xanh dương */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="4"
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #00ffe5 0%, #004bfa 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  {/* Màu 5: Cam đến Vàng chanh */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="5"
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #ffa200 0%, #edfa00 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  {/* Màu 6: Hồng/Tím đến Đỏ */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="6"
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #ff00ea 0%, #fa0c00 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+                </div>
               </div>
 
               <div className="modal-title">
@@ -267,12 +365,105 @@ export default function Dashboard() {
             <div className="modal-body">
               <div className="modal-background">
                 <p>Background</p>
-                <div className="list-background" id="list-bg-up"></div>
+                <div className="list-background" id="list-bg-up">
+                  {/* bg-img */}
+                  <div className="item-bg bg-item item-bg-update">
+                    <img className="img-bg" src={bgBoard1} alt="img1" />
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  <div className="item-bg bg-item item-bg-update">
+                    <img className="img-bg" src={bgBoard2} alt="img1" />
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  <div className="item-bg bg-item item-bg-update">
+                    <img className="img-bg" src={bgBoard3} alt="img1" />
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  <div className="item-bg bg-item item-bg-update">
+                    <img className="img-bg" src={bgBoard4} alt="img1" />
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+                </div>
               </div>
 
               <div className="modal-background">
                 <p>Color</p>
-                <div className="list-background" id="list-color-up"></div>
+                <div className="list-background" id="list-color-up">
+                  {/* bg-locor */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="1" // Đổi 'data' thành 'data-id' hoặc 'data-tên-gì-đó' để tuân thủ quy tắc thuộc tính `data-*` trong React/JSX
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #ffb100 0%, #fa0c00 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  {/* Màu 2: Xanh dương đến Tím */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="2"
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #2609ff 0%, #d20cff 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  {/* Màu 3: Xanh lá cây đến Xanh ngọc */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="3"
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #00ff2f 0%, #00ffc8 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  {/* Màu 4: Xanh ngọc đến Xanh dương */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="4"
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #00ffe5 0%, #004bfa 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  {/* Màu 5: Cam đến Vàng chanh */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="5"
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #ffa200 0%, #edfa00 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+
+                  {/* Màu 6: Hồng/Tím đến Đỏ */}
+                  <div
+                    className="item-color bg-item item-color-update"
+                    data-id="6"
+                    style={{
+                      background:
+                        "linear-gradient(123deg, #ff00ea 0%, #fa0c00 100%)",
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check img-tick"></i>
+                  </div>
+                </div>
               </div>
 
               <div className="modal-title">

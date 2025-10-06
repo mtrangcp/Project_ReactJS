@@ -17,11 +17,12 @@ export default function Register() {
 
     if (!email || !password) {
       Toastify({
-        text: "Vui lòng nhập đầy đủ Email và Password",
-        duration: 3000,
+        text: `Mật khẩu không được bỏ trống <br/>Email không được bỏ trống`,
+        className: "custom-error-toast",
+        duration: 5000,
         gravity: "top",
-        position: "right",
-        backgroundColor: "#dc3545",
+        position: "left",
+        close: true,
       }).showToast();
       setLoading(false);
       return;
