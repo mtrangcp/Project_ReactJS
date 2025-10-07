@@ -83,15 +83,12 @@ export default function BoardDetail() {
   }, []);
 
   // calendar
-  // useRef để truy cập DOM element của lịch
   const calendarRef = useRef(null);
   const [selectedInput, setSelectedInput] = useState<string | null>(null);
 
-  // States cho Checkbox (có thể dùng useState cho input/checkbox thay vì DOM thuần)
   const [isStartChecked, setIsStartChecked] = useState<boolean>(false);
   const [isDueChecked, setIsDueChecked] = useState<boolean>(false);
 
-  // Xử lý thay đổi checkbox
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleCheckboxChange = (type: any) => {
     if (type === "start") {
@@ -205,6 +202,7 @@ export default function BoardDetail() {
                 src={starredBoardsBlackIcon}
                 alt="img star"
               />
+
               <div className="over-board">
                 <img src={overBoard} alt="img board" />
                 <span>Board</span>
@@ -213,6 +211,7 @@ export default function BoardDetail() {
                 <img id="icon-table" src={tableIcon} alt="img table" />
                 <span>Table</span>
               </div>
+
               <div
                 data-bs-toggle="modal"
                 data-bs-target="#closeBoardModal"
@@ -451,8 +450,6 @@ export default function BoardDetail() {
                 )}
               </div>
             </div> */}
-
-            {/*  */}
 
             <div className="item-toDo last-item-list">
               <div className="last-item">
@@ -1087,7 +1084,6 @@ export default function BoardDetail() {
       >
         <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content p-3">
-            {/* ... Modal Header giữ nguyên ... */}
             <div className="modal-header d-flex align-items-center">
               <h5
                 className="modal-title text-center flex-grow-1"
@@ -1104,7 +1100,7 @@ export default function BoardDetail() {
             </div>
 
             <div className="modal-body">
-              {/* Khu vực hiển thị lịch: Dùng ref thay vì id */}
+              {/* Khu vực hiển thị lịch:  ref thay  id */}
               <div ref={calendarRef}></div>
 
               <label style={{ marginTop: 25 }}>
@@ -1159,58 +1155,6 @@ export default function BoardDetail() {
           </div>
         </div>
       </div>
-      {/* <div
-        className="modal fade"
-        id="dateModal"
-        tabIndex={-1}
-        aria-labelledby="labelModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-scrollable">
-          <div className="modal-content p-3">
-            <div className="modal-header d-flex align-items-center">
-              <h5
-                className="modal-title text-center flex-grow-1"
-                id="labelModalLabel"
-              >
-                Dates
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              />
-            </div>
-
-            <div className="modal-body">
-              <div id="calendar"></div>
-
-              <label style={{ marginTop: 25 }}>
-                <input type="checkbox" id="start-date-checkbox" /> Start date
-              </label>
-              <input type="text" id="start-date" className="form-control" />
-              <label>
-                <input type="checkbox" id="due-date-checkbox" /> Due date
-              </label>
-              <input type="text" id="due-date" className="form-control" />
-            </div>
-
-            <div className="modal-footer">
-              <button type="button" className="btn btn-primary">
-                Save
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                data-bs-dismiss="modal"
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
-      </div> */}
 
       {/* Modal Close card */}
       <div className="modal fade" id="closeCardModal" tabIndex={-1}>
