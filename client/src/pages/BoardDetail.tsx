@@ -3,6 +3,8 @@ import "../css/GeneralStyle.css";
 
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 
 import trelloLogoFull from "../assets/images/trello-logo-full.png";
 import boardsIcon from "../assets/icons/boards.png";
@@ -79,6 +81,60 @@ export default function BoardDetail() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // calendar
+  // useRef để truy cập DOM element của lịch
+  const calendarRef = useRef(null);
+  const [selectedInput, setSelectedInput] = useState<string | null>(null);
+
+  // States cho Checkbox (có thể dùng useState cho input/checkbox thay vì DOM thuần)
+  const [isStartChecked, setIsStartChecked] = useState<boolean>(false);
+  const [isDueChecked, setIsDueChecked] = useState<boolean>(false);
+
+  // Xử lý thay đổi checkbox
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleCheckboxChange = (type: any) => {
+    if (type === "start") {
+      setIsStartChecked(!isStartChecked);
+      setIsDueChecked(false);
+      setSelectedInput(isStartChecked ? null : "#start-date");
+    } else if (type === "due") {
+      setIsDueChecked(!isDueChecked);
+      setIsStartChecked(false);
+      setSelectedInput(isDueChecked ? null : "#due-date");
+    }
+  };
+
+  // Sử dụng useEffect để khởi tạo Flatpickr
+  useEffect(() => {
+    if (calendarRef.current) {
+      const fp = flatpickr(calendarRef.current, {
+        inline: true,
+        enableTime: true,
+        dateFormat: "Y-m-d\\TH:i:s\\Z",
+        onChange: function (_selectedDates, dateStr) {
+          if (selectedInput) {
+            const inputEl =
+              document.querySelector<HTMLInputElement>(selectedInput);
+            if (inputEl) {
+              inputEl.value = dateStr;
+            }
+          }
+        },
+      });
+
+      return () => {
+        fp.destroy();
+      };
+    }
+  }, [selectedInput]);
+
+  const saveDateValues = () => {
+    console.log("Save clicked");
+  };
+  const removeDateValues = () => {
+    console.log("Remove clicked");
+  };
 
   return (
     <>
@@ -612,6 +668,8 @@ export default function BoardDetail() {
                   <div
                     className="select"
                     id="status-task"
+                    data-bs-toggle="modal"
+                    data-bs-target="#moveDropdownModal"
                     // onclick="openMoveDropdownModal()"
                   >
                     In-progress
@@ -632,9 +690,10 @@ export default function BoardDetail() {
                       // @ts-expect-error
                       editor={ClassicEditor}
                       data="<p>Nội dung task</p>"
-                      onChange={(event, editor) => {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      onChange={(editor: any) => {
                         const data = editor.getData();
-                        console.log(data);
+                        console.log("DATA:", data);
                       }}
                     />
                     <div className="btn-group">
@@ -646,19 +705,30 @@ export default function BoardDetail() {
 
                 <div className="aside-modal">
                   {/* onclick="openEditLabelModal()" */}
-                  <div className="labels">
+                  <div
+                    className="labels"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editLabelModal"
+                  >
                     <img src={labelsIcon} alt="labels" />
                     <span>Labels</span>
                   </div>
 
                   {/* onclick="openDateModal()" */}
-                  <div className="labels">
+                  <div
+                    className="labels"
+                    data-bs-toggle="modal"
+                    data-bs-target="#dateModal"
+                  >
                     <img src={dateIcon} alt="date" />
                     <span>Dates</span>
                   </div>
+
                   <div
                     className="labels"
                     id="confirm-delete"
+                    data-bs-toggle="modal"
+                    data-bs-target="#closeCardModal"
                     style={{ backgroundColor: "#c9372c" }}
                   >
                     <img src={delTaskIcon} alt="date" />
@@ -723,109 +793,7 @@ export default function BoardDetail() {
         </div>
       </div>
 
-      {/* Modal add labels dropdown */}
-      <div
-        className="modal fade"
-        id="labelModal"
-        tabIndex={-1}
-        aria-labelledby="labelModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content p-3">
-            <div className="modal-header">
-              <img
-                src={btnBlack}
-                alt="back-btn"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              />
-              <h5 className="modal-title" id="labelModalLabel">
-                Create label
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              />
-            </div>
-            <div className="modal-body">
-              <div className="mb-3">
-                <label className="form-label">Title</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="labelTitleInput"
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Select a color</label>
-                <div className="d-flex flex-wrap gap-2">
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#baf3db" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#f8e6a0" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#fedec8" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#ffd5d2" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#dfd8fd" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#4bce97" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#f5cd47" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#fea362" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#f87168" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#9f8fef" }}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-primary"
-                id="createLabelBtn"
-              >
-                Create
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal edit list labels dropdown */}
+      {/* Modal list labels dropdown */}
       <div
         className="modal fade"
         id="editLabelModal"
@@ -849,23 +817,154 @@ export default function BoardDetail() {
                 aria-label="Close"
               />
             </div>
+
             <div className="modal-body">
               <p>Labels</p>
               <div className="listLabels">
                 <div className="itemLabel">
                   <input type="checkbox" />
-                  <div className="colorLabel">done</div>
+                  <div className="colorLabel color-green">done</div>
+                  <img
+                    src={penEdit}
+                    alt="edit"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editAndDelLabelModal"
+                  />
+                </div>
+
+                <div className="itemLabel">
+                  <input type="checkbox" />
+                  <div className="colorLabel color-orange">urgent</div>
+                  <img src={penEdit} alt="edit" />
+                </div>
+
+                <div className="itemLabel">
+                  <input type="checkbox" />
+                  <div className="colorLabel color-red">todo</div>
+                  <img src={penEdit} alt="edit" />
+                </div>
+
+                <div className="itemLabel">
+                  <input type="checkbox" />
+                  <div className="colorLabel color-violet">in-progress</div>
                   <img src={penEdit} alt="edit" />
                 </div>
               </div>
             </div>
+
             <div className="modal-footer">
               <button
                 type="button"
                 className="btn btn-primary"
                 id="openCreateLabelModal"
+                data-bs-toggle="modal"
+                data-bs-target="#labelModal"
+              >
+                Create a new label
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal add labels dropdown */}
+      <div
+        className="modal fade"
+        id="labelModal"
+        tabIndex={-1}
+        aria-labelledby="labelModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content p-3">
+            <div className="modal-header">
+              <img
+                src={btnBlack}
+                alt="back-btn"
+                data-bs-toggle="modal"
+                data-bs-target="#editLabelModal"
+              />
+              <h5 className="modal-title" id="labelModalLabel">
+                Create label
+              </h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              />
+            </div>
+
+            <div className="modal-body">
+              <div className="mb-3">
+                <label className="form-label">Title</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="labelTitleInput"
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Select a color</label>
+                <div className="d-flex flex-wrap gap-2">
+                  <span
+                    className="color-option"
+                    style={{ backgroundColor: "#baf3db" }}
+                  />
+                  <span
+                    className="color-option"
+                    style={{ backgroundColor: "#f8e6a0" }}
+                  />
+                  <span
+                    className="color-option"
+                    style={{ backgroundColor: "#fedec8" }}
+                  />
+                  <span
+                    className="color-option"
+                    style={{ backgroundColor: "#ffd5d2" }}
+                  />
+                  <span
+                    className="color-option"
+                    style={{ backgroundColor: "#dfd8fd" }}
+                  />
+                  <span
+                    className="color-option"
+                    style={{ backgroundColor: "#4bce97" }}
+                  />
+                  <span
+                    className="color-option"
+                    style={{ backgroundColor: "#f5cd47" }}
+                  />
+                  <span
+                    className="color-option"
+                    style={{ backgroundColor: "#fea362" }}
+                  />
+                  <span
+                    className="color-option"
+                    style={{ backgroundColor: "#f87168" }}
+                  />
+                  <span
+                    className="color-option"
+                    style={{ backgroundColor: "#9f8fef" }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-primary"
+                id="createLabelBtn"
               >
                 Create
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
               </button>
             </div>
           </div>
@@ -886,8 +985,8 @@ export default function BoardDetail() {
               <img
                 src={btnBlack}
                 alt="back-btn"
-                data-bs-dismiss="modal"
-                aria-label="Close"
+                data-bs-toggle="modal"
+                data-bs-target="#editLabelModal"
               />
               <h5 className="modal-title" id="labelModalLabel">
                 Edit label
@@ -899,6 +998,7 @@ export default function BoardDetail() {
                 aria-label="Close"
               />
             </div>
+
             <div className="modal-body">
               <div className="mb-3">
                 <label className="form-label">Title</label>
@@ -955,6 +1055,7 @@ export default function BoardDetail() {
                 </div>
               </div>
             </div>
+
             <div className="modal-footer">
               <button
                 type="button"
@@ -986,6 +1087,7 @@ export default function BoardDetail() {
       >
         <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content p-3">
+            {/* ... Modal Header giữ nguyên ... */}
             <div className="modal-header d-flex align-items-center">
               <h5
                 className="modal-title text-center flex-grow-1"
@@ -1000,9 +1102,90 @@ export default function BoardDetail() {
                 aria-label="Close"
               />
             </div>
+
             <div className="modal-body">
-              <div id="calendar" />
-              {/* Khu vực hiển thị lịch */}
+              {/* Khu vực hiển thị lịch: Dùng ref thay vì id */}
+              <div ref={calendarRef}></div>
+
+              <label style={{ marginTop: 25 }}>
+                <input
+                  type="checkbox"
+                  checked={isStartChecked}
+                  onChange={() => handleCheckboxChange("start")}
+                />{" "}
+                Start date
+              </label>
+              <input
+                type="text"
+                id="start-date"
+                className="form-control"
+                readOnly
+              />
+
+              <label>
+                <input
+                  type="checkbox"
+                  checked={isDueChecked}
+                  onChange={() => handleCheckboxChange("due")}
+                />{" "}
+                Due date
+              </label>
+              <input
+                type="text"
+                id="due-date"
+                className="form-control"
+                readOnly
+              />
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={saveDateValues}
+                data-bs-dismiss="modal"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={removeDateValues}
+                data-bs-dismiss="modal"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* <div
+        className="modal fade"
+        id="dateModal"
+        tabIndex={-1}
+        aria-labelledby="labelModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-scrollable">
+          <div className="modal-content p-3">
+            <div className="modal-header d-flex align-items-center">
+              <h5
+                className="modal-title text-center flex-grow-1"
+                id="labelModalLabel"
+              >
+                Dates
+              </h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              />
+            </div>
+
+            <div className="modal-body">
+              <div id="calendar"></div>
+
               <label style={{ marginTop: 25 }}>
                 <input type="checkbox" id="start-date-checkbox" /> Start date
               </label>
@@ -1012,6 +1195,7 @@ export default function BoardDetail() {
               </label>
               <input type="text" id="due-date" className="form-control" />
             </div>
+
             <div className="modal-footer">
               <button type="button" className="btn btn-primary">
                 Save
@@ -1026,7 +1210,7 @@ export default function BoardDetail() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Modal Close card */}
       <div className="modal fade" id="closeCardModal" tabIndex={-1}>

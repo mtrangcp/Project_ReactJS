@@ -79,7 +79,9 @@
 .item-toDo .last-item .part-show button:hover,
 .item-toDo .last-item .confirm-add button:hover,
 #labelModal .modal-header img:hover,
-#labelModal .modal-footer button:hover {
+#labelModal .modal-footer button:hover,
+#editAndDelLabelModal .modal-header img:hover,
+#editAndDelLabelModal .modal-footer button:hover {
   opacity: 0.7;
   cursor: pointer;
 }
@@ -806,29 +808,41 @@
   border: 2px solid #000;
 }
 
-#labelModal .modal-header {
+#labelModal .modal-header,
+#editAndDelLabelModal .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between !important;
   width: 100%;
 }
 
-#labelModal .modal-header img {
+#labelModal .modal-header img,
+#editAndDelLabelModal .modal-header img {
   width: 24px;
   height: 24px;
 }
 
-#labelModal .modal-header button {
+#labelModal .modal-header button,
+#editAndDelLabelModal .modal-header button {
   margin: 0;
 }
 
-#labelModal .modal-footer button {
-  border-radius: 3px;
-  background-color: #0c66e4;
+#labelModal .modal-footer,
+#editAndDelLabelModal .modal-footer {
+  border-top: 1px solid rgba(9, 30, 66, 0.14);
+  display: flex;
+  justify-content: space-between;
 }
 
-#labelModal .modal-footer {
-  border-top: 1px solid rgba(9, 30, 66, 0.14);
+#labelModal .modal-footer button,
+#editAndDelLabelModal .modal-footer button {
+  border-radius: 3px;
+  background-color: #0c66e4;
+  border: none;
+}
+
+#editAndDelLabelModal .modal-footer #delLabelBtn {
+  background-color: red;
 }
 
 #dateModal .modal-footer button {
@@ -889,12 +903,23 @@
 #editLabelModal .modal-body .listLabels .itemLabel .colorLabel {
   height: 32px;
   border-radius: 3px;
-  background-color: #4bce97;
   display: flex;
   align-items: center;
   padding-left: 12px;
   padding-right: 12px;
   flex: 1;
+}
+.itemLabel .color-green {
+  background-color: #4bce97;
+}
+.itemLabel .color-orange {
+  background-color: #fea362;
+}
+.itemLabel .color-red {
+  background-color: #f87168;
+}
+.itemLabel .color-violet {
+  background-color: #9f8fef;
 }
 
 #editLabelModal .modal-footer #openCreateLabelModal {
