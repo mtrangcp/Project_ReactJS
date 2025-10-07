@@ -163,7 +163,9 @@ export default function BoardDetail() {
                 <span>Closed Boards</span>
               </a>
             </div>
+
             <div className="line" />
+
             <div className="your-boards">
               <div className="title">
                 <span>Your boards</span>

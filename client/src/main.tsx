@@ -7,9 +7,13 @@ import { routers } from "./routers/routers.tsx";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { Provider } from "react-redux";
+import { store } from "./store/store.ts";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={routers}></RouterProvider>
+    <Provider store={store}>
+      <RouterProvider router={routers}></RouterProvider>
+    </Provider>
   </StrictMode>
 );

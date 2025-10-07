@@ -969,6 +969,10 @@
     width: 100%;
     margin-left: 0;
   }
+
+  .header .div-logo {
+    border: none !important;
+  }
 }
 
 @media screen and (max-width: 627px) {
@@ -1003,5 +1007,9 @@
 
   .overlay-title .over-left .close-board {
     margin: 0 !important;
+  }
+
+  .header .div-logo {
+    border: none !important;
   }
 }

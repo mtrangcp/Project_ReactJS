@@ -94,7 +94,7 @@ body {
 
 .workspaces .boards .item:hover {
   cursor: pointer;
-  background-color: #6c757d;
+  background-color: rgba(0, 0, 0, 0.16);
 }
 
 .workspaces .boards img {
