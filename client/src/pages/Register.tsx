@@ -110,7 +110,7 @@ export default function Register() {
       showToastError("Email không được phép trùng");
       return;
     } else {
-      const dateNow = Date.now().toString();
+      const dateNow = new Date().toISOString();
       try {
         await dispath(
           addUser({ username, email, password, created_at: dateNow })
