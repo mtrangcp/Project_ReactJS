@@ -105,6 +105,12 @@
   overflow: hidden;
 }
 
+.listBoards .item-boards p:hover {
+  opacity: 0.7;
+  color: #dc3545;
+  cursor: pointer;
+}
+
 .listBoards .bg-img {
   background-size: "cover";
   background-position: "center";

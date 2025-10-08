@@ -16,27 +16,45 @@ import toggleSearchIcon from "../assets/icons/toggle-search.png";
 import toggleNavigationIcon from "../assets/icons/toggle-navigation.png";
 import editBoard from "../assets/icons/edit-board.png";
 
-import bgBoard1 from "../assets/images/board-title1.jpg";
-import bgBoard2 from "../assets/images/board-title2.jpg";
-import bgBoard3 from "../assets/images/board-title3.jpg";
-import bgBoard4 from "../assets/images/board-title4.jpg";
 import { imageBackgrounds, colorBackgrounds } from "../utils/backgrounds";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
+import { Modal } from "bootstrap";
 import type { AppDispath, RootState } from "../store/store";
-import { addDashboard, getDashboard } from "../slices/dashboardSlice";
+import {
+  addDashboard,
+  getDashboard,
+  updateDashboard,
+} from "../slices/dashboardSlice";
 import { showToastError, showToastSuccess } from "../utils/toast";
+import type { Board } from "../utils/types";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+  const [currentBoard, setCurrentBoard] = useState<string>("");
   const KEY_LOCAL = "tokenIdLogin";
+  const CURR_BOARD = "currentBoard";
   const { dashboards } = useSelector((state: RootState) => state.boards);
   const dispath = useDispatch<AppDispath>();
+  const navigate = useNavigate();
 
   const idUserLocal = localStorage.getItem(KEY_LOCAL);
   const [inputTitleAdd, setInputTitleAdd] = useState<string>("");
   const [selectedBg, setSelectedBg] = useState<string>("");
   const [selectedType, setSelectedType] = useState<"image" | "color" | "">("");
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [boardEditing, setBoardEditing] = useState<any>(null);
+  const [inputTitleEdit, setInputTitleEdit] = useState<string>("");
+  const [selectedBgEdit, setSelectedBgEdit] = useState<string>("");
+  const [selectedTypeEdit, setSelectedTypeEdit] = useState<
+    "image" | "color" | ""
+  >("");
+
+  const [activeSection, setActiveSection] = useState<
+    "boards" | "starred" | "closed"
+  >("boards");
 
   useEffect(() => {
     dispath(getDashboard());
@@ -65,7 +83,7 @@ export default function Dashboard() {
     let type = selectedType;
 
     if (!type) {
-      bg = bgBoard1;
+      bg = imageBackgrounds[0];
       type = "image";
     }
 
@@ -76,6 +94,7 @@ export default function Dashboard() {
       title: inputTitleAdd,
       description: "",
       backdrop: bg,
+      type: type,
       is_started: false,
       is_closed: false,
       created_at: dateNow,
@@ -88,10 +107,84 @@ export default function Dashboard() {
       setSelectedBg("");
       setSelectedType("");
       dispath(getDashboard());
+
+      const modalElement = document.getElementById("createModalBoard");
+      if (modalElement) {
+        const modalInstance =
+          Modal.getInstance(modalElement) || new Modal(modalElement);
+
+        modalInstance.hide();
+
+        modalElement.addEventListener(
+          "hidden.bs.modal",
+          () => {
+            Modal.getInstance(modalElement)?.dispose(); // 🧹 xoá instance cũ
+            document.body.classList.remove("modal-open");
+
+            const backdrop = document.querySelector(".modal-backdrop");
+            if (backdrop) backdrop.remove();
+          },
+          { once: true }
+        );
+      }
     } catch (error) {
       console.error("Error: ", error);
       showToastError("Lỗi thêm board");
     }
+  };
+
+  const handleOpenEditModal = (board: Board) => {
+    setBoardEditing(board);
+    setInputTitleEdit(board.title);
+    setSelectedBgEdit(board.backdrop);
+    setSelectedTypeEdit(board.type as "image" | "color" | "");
+
+    const modalElement = document.getElementById("scrollModalEdit");
+    if (modalElement) {
+      const modal = new Modal(modalElement);
+      modal.show();
+    }
+  };
+
+  const handleClickUpdate = async () => {
+    if (!inputTitleEdit) {
+      showToastError("Title không được phép trống");
+      return;
+    }
+
+    if (!boardEditing) return;
+
+    const updatedBoard = {
+      ...boardEditing,
+      title: inputTitleEdit,
+      backdrop: selectedBgEdit,
+      type: selectedTypeEdit,
+    };
+
+    try {
+      await dispath(updateDashboard(updatedBoard)).unwrap();
+      showToastSuccess("Cập nhật board thành công");
+      dispath(getDashboard());
+
+      const modalElement = document.getElementById("scrollModalEdit");
+      if (modalElement) {
+        const modal = Modal.getInstance(modalElement);
+        modal?.hide();
+      }
+      document.body.classList.remove("modal-open");
+      document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+    } catch (error) {
+      console.error("Error: ", error);
+      showToastError("Lỗi cập nhật board");
+    }
+  };
+
+  const handleClickBoardToBoarddetail = (id: string) => {
+    setCurrentBoard(id);
+    console.log("curr board: ", currentBoard);
+
+    localStorage.setItem(CURR_BOARD, id);
+    navigate("/dashboardDetail");
   };
 
   return (
@@ -120,17 +213,35 @@ export default function Dashboard() {
 
           <div className="workspaces">
             <div className="boards">
-              <a href="index.html" className="item">
+              <a
+                href="#"
+                className={`item ${
+                  activeSection === "boards" ? "clicked-item" : ""
+                }`}
+                onClick={() => setActiveSection("boards")}
+              >
                 <img src={boardsIcon} alt="img boards" />
                 <span>Boards</span>
               </a>
 
-              <a href="#" className="item" id="renderStarredboard">
+              <a
+                href="#"
+                className={`item ${
+                  activeSection === "starred" ? "clicked-item" : ""
+                }`}
+                onClick={() => setActiveSection("starred")}
+              >
                 <img src={starredBoardsIcon} alt="img starredBoards" />
                 <span>Starred Boards</span>
               </a>
 
-              <a href="#" className="item" id="renderClosedboard">
+              <a
+                href="#"
+                className={`item ${
+                  activeSection === "closed" ? "clicked-item" : ""
+                }`}
+                onClick={() => setActiveSection("closed")}
+              >
                 <img src={closedBoardsIcon} alt="img closedBoards" />
                 <span>Closed Boards</span>
               </a>
@@ -178,130 +289,141 @@ export default function Dashboard() {
           </div>
 
           {/*  */}
-          <div className="listBoards bg-img" id="listBoard">
-            {listBoards.map((el) => {
-              return (
-                <div
-                  className="item-boards"
-                  style={
-                    selectedType === "image"
-                      ? {
-                          backgroundImage: `url(${el.backdrop})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                        }
-                      : { background: el.backdrop }
-                  }
-                >
-                  <p>{el.title}</p>
-
+          {activeSection === "boards" && (
+            <div className="listBoards bg-img" id="listBoard">
+              {listBoards.map((el) => {
+                return (
                   <div
-                    className="edit-board"
-                    data-bs-toggle="modal"
-                    data-bs-target="#scrollModalEdit"
+                    key={el.id}
+                    className="item-boards"
+                    style={
+                      el.type === "color"
+                        ? { background: el.backdrop }
+                        : {
+                            backgroundImage: `url(${
+                              el.backdrop || imageBackgrounds[0]
+                            })`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                          }
+                    }
                   >
-                    <img src={editBoard} alt="img edit" />
-                    <span>Edit this board</span>
+                    <p onClick={() => handleClickBoardToBoarddetail(el.id)}>
+                      {el.title}
+                    </p>
+
+                    <div
+                      className="edit-board"
+                      // data-bs-toggle="modal"
+                      // data-bs-target="#scrollModalEdit"
+                      onClick={() => handleOpenEditModal(el)}
+                    >
+                      <img src={editBoard} alt="img edit" />
+                      <span>Edit this board</span>
+                    </div>
+
+                    <i className="fa-solid fa-star"></i>
                   </div>
-
-                  <i className="fa-solid fa-star"></i>
-                </div>
-              );
-            })}
-
-            {/* <div className="item-boards" style={{ backgroundColor: "red" }}>
-              <p>Board Title 01</p>
+                );
+              })}
 
               <div
-                className="edit-board"
-                data-bs-toggle="modal"
-                data-bs-target="#scrollModalEdit"
+                className="item-default"
+                // data-bs-toggle="modal"
+                // data-bs-target="#createModalBoard"
+                onClick={() => {
+                  const modalElement =
+                    document.getElementById("createModalBoard");
+                  if (modalElement) {
+                    const modal = new Modal(modalElement);
+                    modal.show();
+                  }
+                }}
               >
-                <img src={editBoard} alt="img edit" />
-                <span>Edit this board</span>
+                <p>Create new board</p>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "starred" && (
+            <>
+              <div className="yourWorkspaces" id="starred-title">
+                <div className="workspaces-left">
+                  <img src={starredBoardsBlackIcon} alt="img Workspaces" />
+                  <span> Starred Boards</span>
+                </div>
               </div>
 
-              <i className="fa-solid fa-star"></i>
-            </div> */}
-
-            <div
-              className="item-default"
-              data-bs-toggle="modal"
-              data-bs-target="#createModalBoard"
-            >
-              <p>Create new board</p>
-            </div>
-          </div>
-
-          <div className="yourWorkspaces" id="starred-title">
-            <div className="workspaces-left">
-              <img src={starredBoardsBlackIcon} alt="img Workspaces" />
-              <span> Starred Boards</span>
-            </div>
-          </div>
-
-          <div className="listBoards" id="starredBoard">
-            {listStarredBoards.map((el) => {
-              return (
-                <div
-                  className="item-boards"
-                  style={{
-                    backgroundImage: `url(${el.backdrop})`,
-                  }}
-                >
-                  <p>{el.title}</p>
-
+              <div className="listBoards" id="starredBoard">
+                {listStarredBoards.map((el) => (
                   <div
-                    className="edit-board"
-                    data-bs-toggle="modal"
-                    data-bs-target="#scrollModalEdit"
+                    key={el.id}
+                    className="item-boards"
+                    style={
+                      el.type === "color"
+                        ? { background: el.backdrop }
+                        : { backgroundImage: `url(${el.backdrop})` }
+                    }
                   >
-                    <img src={editBoard} alt="img edit" />
-                    <span>Edit this board</span>
+                    <p onClick={() => handleClickBoardToBoarddetail(el.id)}>
+                      {el.title}
+                    </p>
+                    <div
+                      className="edit-board"
+                      onClick={() => handleOpenEditModal(el)}
+                    >
+                      <img src={editBoard} alt="img edit" />
+                      <span>Edit this board</span>
+                    </div>
+                    <i className="fa-solid fa-star"></i>
                   </div>
+                ))}
+              </div>
+            </>
+          )}
 
-                  <i className="fa-solid fa-star"></i>
+          {/* Closed Boards */}
+          {activeSection === "closed" && (
+            <>
+              <div className="yourWorkspaces" id="closed-title">
+                <div className="workspaces-left">
+                  <img src={closedBoardsBlackIcon} alt="img Workspaces" />
+                  <span> Closed Boards</span>
                 </div>
-              );
-            })}
-          </div>
+              </div>
 
-          <div className="yourWorkspaces" id="closed-title">
-            <div className="workspaces-left">
-              <img src={closedBoardsBlackIcon} alt="img Workspaces" />
-              <span> Closed Boards</span>
-            </div>
-          </div>
-
-          <div className="listBoards" id="closedBoard">
-            {listClosedBoards.map((el) => {
-              return (
-                <div
-                  className="item-boards"
-                  style={{
-                    backgroundImage: `url(${el.backdrop})`,
-                  }}
-                >
-                  <p>{el.title}</p>
-
+              <div className="listBoards" id="closedBoard">
+                {listClosedBoards.map((el) => (
                   <div
-                    className="edit-board"
-                    data-bs-toggle="modal"
-                    data-bs-target="#scrollModalEdit"
+                    key={el.id}
+                    className="item-boards"
+                    style={
+                      el.type === "color"
+                        ? { background: el.backdrop }
+                        : { backgroundImage: `url(${el.backdrop})` }
+                    }
+                    onClick={() => handleClickBoardToBoarddetail(el.id)}
                   >
-                    <img src={editBoard} alt="img edit" />
-                    <span>Edit this board</span>
+                    <p onClick={() => handleClickBoardToBoarddetail(el.id)}>
+                      {el.title}
+                    </p>
+                    <div
+                      className="edit-board"
+                      onClick={() => handleOpenEditModal(el)}
+                    >
+                      <img src={editBoard} alt="img edit" />
+                      <span>Edit this board</span>
+                    </div>
+                    <i className="fa-solid fa-star"></i>
                   </div>
-
-                  <i className="fa-solid fa-star"></i>
-                </div>
-              );
-            })}
-          </div>
+                ))}
+              </div>
+            </>
+          )}
         </main>
       </div>
 
-      {/*  */}
+      {/* offcanvas */}
       <div
         className="offcanvas offcanvas-end"
         tabIndex={-1}
@@ -456,101 +578,51 @@ export default function Dashboard() {
                 data-bs-dismiss="modal"
               />
             </div>
+
             <div className="modal-body">
               <div className="modal-background">
                 <p>Background</p>
                 <div className="list-background" id="list-bg-up">
-                  {/* bg-img */}
-                  <div className="item-bg bg-item item-bg-update">
-                    <img className="img-bg" src={bgBoard1} alt="img1" />
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div className="item-bg bg-item item-bg-update">
-                    <img className="img-bg" src={bgBoard2} alt="img1" />
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div className="item-bg bg-item item-bg-update">
-                    <img className="img-bg" src={bgBoard3} alt="img1" />
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div className="item-bg bg-item item-bg-update">
-                    <img className="img-bg" src={bgBoard4} alt="img1" />
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
+                  {imageBackgrounds.map((img, index) => (
+                    <div
+                      key={index}
+                      className="item-bg bg-item item-bg-update"
+                      onClick={() => {
+                        setSelectedBgEdit(img);
+                        setSelectedTypeEdit("image");
+                      }}
+                    >
+                      <img className="img-bg" src={img} alt={`img-${index}`} />
+                      <i
+                        className={`fa-solid fa-circle-check img-tick ${
+                          selectedBgEdit === img ? "check-active" : ""
+                        }`}
+                      ></i>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               <div className="modal-background">
                 <p>Color</p>
                 <div className="list-background" id="list-color-up">
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="1"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #ffb100 0%, #fa0c00 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="2"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #2609ff 0%, #d20cff 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="3"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #00ff2f 0%, #00ffc8 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="4"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #00ffe5 0%, #004bfa 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="5"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #ffa200 0%, #edfa00 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="6"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #ff00ea 0%, #fa0c00 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
+                  {colorBackgrounds.map((color, index) => (
+                    <div
+                      key={index}
+                      className="item-color bg-item item-color-update"
+                      style={{ background: color }}
+                      onClick={() => {
+                        setSelectedBgEdit(color);
+                        setSelectedTypeEdit("color");
+                      }}
+                    >
+                      <i
+                        className={`fa-solid fa-circle-check img-tick ${
+                          selectedBgEdit === color ? "check-active" : ""
+                        }`}
+                      ></i>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -563,11 +635,14 @@ export default function Dashboard() {
                     id="boardTitleUpdate"
                     type="text"
                     placeholder="Board 01..."
+                    value={inputTitleEdit}
+                    onChange={(e) => setInputTitleEdit(e.target.value)}
                   />
                   <p>👋 Please provide a valid board title.</p>
                 </div>
               </div>
             </div>
+
             <div className="modal-footer">
               <button
                 type="button"
@@ -580,6 +655,7 @@ export default function Dashboard() {
                 type="button"
                 id="btnUpdateBoard"
                 className="btn my-btn-create"
+                onClick={handleClickUpdate}
               >
                 Save
               </button>

@@ -12,6 +12,7 @@ export interface Board {
   title: string;
   description: string;
   backdrop: string;
+  type: string;
   is_started: boolean;
   is_closed: boolean;
   created_at: string;

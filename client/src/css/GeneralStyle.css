@@ -97,6 +97,10 @@ body {
   background-color: rgba(0, 0, 0, 0.16);
 }
 
+.clicked-item {
+  background-color: rgba(0, 0, 0, 0.16);
+}
+
 .workspaces .boards img {
   height: 16px;
   width: 16px;

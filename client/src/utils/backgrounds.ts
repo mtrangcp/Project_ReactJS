@@ -1,13 +1,8 @@
-import bgBoard1 from "../assets/images/board-title1.jpg";
-import bgBoard2 from "../assets/images/board-title2.jpg";
-import bgBoard3 from "../assets/images/board-title3.jpg";
-import bgBoard4 from "../assets/images/board-title4.jpg";
-
 export const imageBackgrounds: string[] = [
-  bgBoard1,
-  bgBoard2,
-  bgBoard3,
-  bgBoard4,
+  "https://res.cloudinary.com/dttookk0w/image/upload/v1759961268/board-title1_scivpc.jpg",
+  "https://res.cloudinary.com/dttookk0w/image/upload/v1759961263/board-title2_kxp8im.jpg",
+  "https://res.cloudinary.com/dttookk0w/image/upload/v1759961263/board-title3_wg30fo.jpg",
+  "https://res.cloudinary.com/dttookk0w/image/upload/v1759961262/board-title4_ackue9.jpg",
 ];
 
 export const colorBackgrounds: string[] = [
