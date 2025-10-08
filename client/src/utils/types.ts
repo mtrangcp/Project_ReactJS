@@ -13,6 +13,7 @@ export interface Board {
   description: string;
   backdrop: string;
   is_started: boolean;
+  is_closed: boolean;
   created_at: string;
 }
 

@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
 import { TextField, Button, Box } from "@mui/material";
-import Toastify from "toastify-js";
 import "../css/Register.css";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../assets/images/trello-logo.png";
-import removeCircle from "../assets/icons/remove_circle.png";
-import closeToast from "../assets/icons/close-toast.png";
-import checkCircle from "../assets/icons/check_circle.png";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispath, RootState } from "../store/store";
 import { addUser, fetchData } from "../slices/registerSlice";
+import { showToastError, showToastSuccess } from "../utils/toast";
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
@@ -28,62 +25,6 @@ export default function Register() {
   useEffect(() => {
     dispath(fetchData());
   }, [dispath]);
-
-  const showToastError = (msg: string) => {
-    const htmlToastError = `
-      <div class="toast-error">
-        <div class="err-top">
-          <div class="left">
-            <img src=${removeCircle} alt="img" />
-            <h4>Error</h4>
-          </div>
-
-          <img src=${closeToast} alt="" id="close-toast-error" />
-        </div>
-
-        <div class="err-bottom">
-          ${msg}
-        </div>
-      </div>
-  `;
-
-    Toastify({
-      text: htmlToastError,
-      className: "custom-error-toast",
-      duration: 2000,
-      gravity: "top",
-      position: "left",
-      close: false,
-      escapeMarkup: false,
-      style: {
-        background: "transparent",
-        boxShadow: "none",
-      },
-    }).showToast();
-  };
-
-  const showToastSeccess = (msg: string) => {
-    const htmlToastSeccess = `
-      <div class="toast-success">
-        <img src=${checkCircle} alt="img" />
-        <p>${msg}</p>
-      </div>
-  `;
-
-    Toastify({
-      text: htmlToastSeccess,
-      className: "custom-error-toast",
-      duration: 2000,
-      gravity: "top",
-      position: "left",
-      close: false,
-      escapeMarkup: false,
-      style: {
-        background: "transparent",
-        boxShadow: "none",
-      },
-    }).showToast();
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,7 +56,7 @@ export default function Register() {
         await dispath(
           addUser({ username, email, password, created_at: dateNow })
         ).unwrap();
-        showToastSeccess("Đăng ký thành công");
+        showToastSuccess("Đăng ký thành công");
         setEmail("");
         setUsername("");
         setPassword("");

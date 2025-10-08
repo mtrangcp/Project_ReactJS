@@ -6,12 +6,9 @@ import {
   FormControlLabel,
   Box,
 } from "@mui/material";
-import Toastify from "toastify-js";
 import logo from "../assets/images/trello-logo.png";
-import removeCircle from "../assets/icons/remove_circle.png";
-import closeToast from "../assets/icons/close-toast.png";
-import checkCircle from "../assets/icons/check_circle.png";
-
+import { showToastError } from "../utils/toast";
+import { showToastSuccess } from "../utils/toast";
 import "../css/login.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,68 +35,12 @@ export default function Login() {
     const shown = sessionStorage.getItem("toastShown");
 
     if (tokenIdLocal && !shown) {
-      showToastSeccess("Bạn đã đăng nhập");
+      showToastSuccess("Bạn đã đăng nhập");
       setLoading(true);
       sessionStorage.setItem("toastShown", "true");
       navigate("/dashboard");
     }
   }, []);
-
-  const showToastError = (msg: string) => {
-    const htmlToastError = `
-        <div class="toast-error">
-          <div class="err-top">
-            <div class="left">
-              <img src=${removeCircle} alt="img" />
-              <h4>Error</h4>
-            </div>
-  
-            <img src=${closeToast} alt="" id="close-toast-error" />
-          </div>
-  
-          <div class="err-bottom">
-            ${msg}
-          </div>
-        </div>
-    `;
-
-    Toastify({
-      text: htmlToastError,
-      className: "custom-error-toast",
-      duration: 2000,
-      gravity: "top",
-      position: "left",
-      close: false,
-      escapeMarkup: false,
-      style: {
-        background: "transparent",
-        boxShadow: "none",
-      },
-    }).showToast();
-  };
-
-  const showToastSeccess = (msg: string) => {
-    const htmlToastSeccess = `
-        <div class="toast-success">
-          <img src=${checkCircle} alt="img" />
-          <p>${msg}</p>
-        </div>
-    `;
-
-    Toastify({
-      text: htmlToastSeccess,
-      className: "custom-error-toast",
-      duration: 2000,
-      gravity: "top",
-      position: "left",
-      close: false,
-      escapeMarkup: false,
-      style: {
-        background: "transparent",
-        boxShadow: "none",
-      },
-    }).showToast();
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,7 +56,7 @@ export default function Login() {
     );
 
     if (checkUser) {
-      showToastSeccess("Đăng nhập thành công");
+      showToastSuccess("Đăng nhập thành công");
       setLoading(true);
 
       localStorage.setItem(KEY_LOCAL, checkUser.id);

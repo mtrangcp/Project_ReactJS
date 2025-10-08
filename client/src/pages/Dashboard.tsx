@@ -20,8 +20,80 @@ import bgBoard1 from "../assets/images/board-title1.jpg";
 import bgBoard2 from "../assets/images/board-title2.jpg";
 import bgBoard3 from "../assets/images/board-title3.jpg";
 import bgBoard4 from "../assets/images/board-title4.jpg";
+import { imageBackgrounds, colorBackgrounds } from "../utils/backgrounds";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
+import type { AppDispath, RootState } from "../store/store";
+import { addDashboard, getDashboard } from "../slices/dashboardSlice";
+import { showToastError, showToastSuccess } from "../utils/toast";
 
 export default function Dashboard() {
+  const KEY_LOCAL = "tokenIdLogin";
+  const { dashboards } = useSelector((state: RootState) => state.boards);
+  const dispath = useDispatch<AppDispath>();
+
+  const idUserLocal = localStorage.getItem(KEY_LOCAL);
+  const [inputTitleAdd, setInputTitleAdd] = useState<string>("");
+  const [selectedBg, setSelectedBg] = useState<string>("");
+  const [selectedType, setSelectedType] = useState<"image" | "color" | "">("");
+
+  useEffect(() => {
+    dispath(getDashboard());
+  }, [dispath]);
+
+  const listBoards = dashboards.filter((el) => el.user_id === idUserLocal);
+  const listStarredBoards = dashboards.filter(
+    (el) => el.user_id === idUserLocal && el.is_started
+  );
+  const listClosedBoards = dashboards.filter(
+    (el) => el.user_id === idUserLocal && el.is_closed
+  );
+
+  const handleSelectBackground = (value: string, type: "image" | "color") => {
+    setSelectedBg(value);
+    setSelectedType(type);
+  };
+
+  const handleClickAdd = async () => {
+    if (!inputTitleAdd) {
+      showToastError("Title không được phép trống");
+      return;
+    }
+
+    let bg: string = selectedBg;
+    let type = selectedType;
+
+    if (!type) {
+      bg = bgBoard1;
+      type = "image";
+    }
+
+    const dateNow = new Date().toISOString();
+    const newBoard = {
+      id: uuidv4(),
+      user_id: idUserLocal || "",
+      title: inputTitleAdd,
+      description: "",
+      backdrop: bg,
+      is_started: false,
+      is_closed: false,
+      created_at: dateNow,
+    };
+
+    try {
+      await dispath(addDashboard(newBoard)).unwrap();
+      showToastSuccess("Thêm mới board thành công");
+      setInputTitleAdd("");
+      setSelectedBg("");
+      setSelectedType("");
+      dispath(getDashboard());
+    } catch (error) {
+      console.error("Error: ", error);
+      showToastError("Lỗi thêm board");
+    }
+  };
+
   return (
     <>
       <header className="header">
@@ -106,8 +178,38 @@ export default function Dashboard() {
           </div>
 
           {/*  */}
-          <div className="listBoards" id="listBoard">
-            <div className="item-boards" style={{ backgroundColor: "red" }}>
+          <div className="listBoards bg-img" id="listBoard">
+            {listBoards.map((el) => {
+              return (
+                <div
+                  className="item-boards"
+                  style={
+                    selectedType === "image"
+                      ? {
+                          backgroundImage: `url(${el.backdrop})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }
+                      : { background: el.backdrop }
+                  }
+                >
+                  <p>{el.title}</p>
+
+                  <div
+                    className="edit-board"
+                    data-bs-toggle="modal"
+                    data-bs-target="#scrollModalEdit"
+                  >
+                    <img src={editBoard} alt="img edit" />
+                    <span>Edit this board</span>
+                  </div>
+
+                  <i className="fa-solid fa-star"></i>
+                </div>
+              );
+            })}
+
+            {/* <div className="item-boards" style={{ backgroundColor: "red" }}>
               <p>Board Title 01</p>
 
               <div
@@ -120,7 +222,7 @@ export default function Dashboard() {
               </div>
 
               <i className="fa-solid fa-star"></i>
-            </div>
+            </div> */}
 
             <div
               className="item-default"
@@ -138,7 +240,31 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="listBoards" id="starredBoard"></div>
+          <div className="listBoards" id="starredBoard">
+            {listStarredBoards.map((el) => {
+              return (
+                <div
+                  className="item-boards"
+                  style={{
+                    backgroundImage: `url(${el.backdrop})`,
+                  }}
+                >
+                  <p>{el.title}</p>
+
+                  <div
+                    className="edit-board"
+                    data-bs-toggle="modal"
+                    data-bs-target="#scrollModalEdit"
+                  >
+                    <img src={editBoard} alt="img edit" />
+                    <span>Edit this board</span>
+                  </div>
+
+                  <i className="fa-solid fa-star"></i>
+                </div>
+              );
+            })}
+          </div>
 
           <div className="yourWorkspaces" id="closed-title">
             <div className="workspaces-left">
@@ -147,7 +273,31 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="listBoards" id="closedBoard"></div>
+          <div className="listBoards" id="closedBoard">
+            {listClosedBoards.map((el) => {
+              return (
+                <div
+                  className="item-boards"
+                  style={{
+                    backgroundImage: `url(${el.backdrop})`,
+                  }}
+                >
+                  <p>{el.title}</p>
+
+                  <div
+                    className="edit-board"
+                    data-bs-toggle="modal"
+                    data-bs-target="#scrollModalEdit"
+                  >
+                    <img src={editBoard} alt="img edit" />
+                    <span>Edit this board</span>
+                  </div>
+
+                  <i className="fa-solid fa-star"></i>
+                </div>
+              );
+            })}
+          </div>
         </main>
       </div>
 
@@ -199,7 +349,6 @@ export default function Dashboard() {
       </div>
 
       {/* Modal Create new board */}
-
       <div className="modal fade" id="createModalBoard" tabIndex={-1}>
         <div className="modal-dialog">
           <div className="modal-content">
@@ -215,103 +364,44 @@ export default function Dashboard() {
               <div className="modal-background">
                 <p>Background</p>
                 <div className="list-background" id="list-bg-create">
-                  {/* bg-img */}
-                  <div className="item-bg bg-item item-bg-update">
-                    <img className="img-bg" src={bgBoard1} alt="img1" />
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div className="item-bg bg-item item-bg-update">
-                    <img className="img-bg" src={bgBoard2} alt="img1" />
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div className="item-bg bg-item item-bg-update">
-                    <img className="img-bg" src={bgBoard3} alt="img1" />
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  <div className="item-bg bg-item item-bg-update">
-                    <img className="img-bg" src={bgBoard4} alt="img1" />
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
+                  {imageBackgrounds.map((img, index) => (
+                    <div
+                      key={index}
+                      className="item-bg bg-item item-bg-update"
+                      onClick={() => handleSelectBackground(img, "image")}
+                    >
+                      <img
+                        className="img-bg"
+                        src={img}
+                        alt={`bg-${index + 1}`}
+                      />
+                      <i
+                        className={`fa-solid fa-circle-check img-tick ${
+                          selectedBg === img ? "check-active" : ""
+                        }`}
+                      ></i>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               <div className="modal-background">
                 <p>Color</p>
                 <div className="list-background" id="list-color-create">
-                  {/* bg-locor */}
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="1" // Đổi 'data' thành 'data-id' hoặc 'data-tên-gì-đó' để tuân thủ quy tắc thuộc tính `data-*` trong React/JSX
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #ffb100 0%, #fa0c00 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  {/* Màu 2: Xanh dương đến Tím */}
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="2"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #2609ff 0%, #d20cff 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  {/* Màu 3: Xanh lá cây đến Xanh ngọc */}
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="3"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #00ff2f 0%, #00ffc8 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  {/* Màu 4: Xanh ngọc đến Xanh dương */}
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="4"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #00ffe5 0%, #004bfa 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  {/* Màu 5: Cam đến Vàng chanh */}
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="5"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #ffa200 0%, #edfa00 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
-
-                  {/* Màu 6: Hồng/Tím đến Đỏ */}
-                  <div
-                    className="item-color bg-item item-color-update"
-                    data-id="6"
-                    style={{
-                      background:
-                        "linear-gradient(123deg, #ff00ea 0%, #fa0c00 100%)",
-                    }}
-                  >
-                    <i className="fa-solid fa-circle-check img-tick"></i>
-                  </div>
+                  {colorBackgrounds.map((color, index) => (
+                    <div
+                      key={index}
+                      className="item-color bg-item item-color-update"
+                      style={{ background: color }}
+                      onClick={() => handleSelectBackground(color, "color")}
+                    >
+                      <i
+                        className={`fa-solid fa-circle-check img-tick ${
+                          selectedBg === color ? "check-active" : ""
+                        }`}
+                      ></i>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -324,6 +414,10 @@ export default function Dashboard() {
                     id="boardTitle"
                     type="text"
                     placeholder="E.g. Shopping list for birthday..."
+                    value={inputTitleAdd}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setInputTitleAdd(e.target.value)
+                    }
                   />
                   <p>👋 Please provide a valid board title.</p>
                 </div>
@@ -341,6 +435,7 @@ export default function Dashboard() {
                 type="button"
                 id="btnCreateBoard"
                 className="btn my-btn-create"
+                onClick={handleClickAdd}
               >
                 Create
               </button>
@@ -350,7 +445,6 @@ export default function Dashboard() {
       </div>
 
       {/* Modal Update board */}
-
       <div className="modal fade" id="scrollModalEdit" tabIndex={-1}>
         <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content">
@@ -392,10 +486,9 @@ export default function Dashboard() {
               <div className="modal-background">
                 <p>Color</p>
                 <div className="list-background" id="list-color-up">
-                  {/* bg-locor */}
                   <div
                     className="item-color bg-item item-color-update"
-                    data-id="1" // Đổi 'data' thành 'data-id' hoặc 'data-tên-gì-đó' để tuân thủ quy tắc thuộc tính `data-*` trong React/JSX
+                    data-id="1"
                     style={{
                       background:
                         "linear-gradient(123deg, #ffb100 0%, #fa0c00 100%)",
@@ -404,7 +497,6 @@ export default function Dashboard() {
                     <i className="fa-solid fa-circle-check img-tick"></i>
                   </div>
 
-                  {/* Màu 2: Xanh dương đến Tím */}
                   <div
                     className="item-color bg-item item-color-update"
                     data-id="2"
@@ -416,7 +508,6 @@ export default function Dashboard() {
                     <i className="fa-solid fa-circle-check img-tick"></i>
                   </div>
 
-                  {/* Màu 3: Xanh lá cây đến Xanh ngọc */}
                   <div
                     className="item-color bg-item item-color-update"
                     data-id="3"
@@ -428,7 +519,6 @@ export default function Dashboard() {
                     <i className="fa-solid fa-circle-check img-tick"></i>
                   </div>
 
-                  {/* Màu 4: Xanh ngọc đến Xanh dương */}
                   <div
                     className="item-color bg-item item-color-update"
                     data-id="4"
@@ -440,7 +530,6 @@ export default function Dashboard() {
                     <i className="fa-solid fa-circle-check img-tick"></i>
                   </div>
 
-                  {/* Màu 5: Cam đến Vàng chanh */}
                   <div
                     className="item-color bg-item item-color-update"
                     data-id="5"
@@ -452,7 +541,6 @@ export default function Dashboard() {
                     <i className="fa-solid fa-circle-check img-tick"></i>
                   </div>
 
-                  {/* Màu 6: Hồng/Tím đến Đỏ */}
                   <div
                     className="item-color bg-item item-color-update"
                     data-id="6"
