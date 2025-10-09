@@ -34,6 +34,7 @@ import addCardIcon from "../assets/icons/add-card.png";
 import { useEffect, useRef, useState } from "react";
 
 export default function BoardDetail() {
+  // control modal
   // handle add list
   const [showTitleAddList, setShowTitleAddList] = useState<boolean>(true);
   const [showAddList, setShowAddList] = useState<boolean>(false);
@@ -49,6 +50,10 @@ export default function BoardDetail() {
   // handle card
   const [showTitleAddCard, setShowTitleAddCard] = useState<boolean>(true);
   const [showAddCard, setShowAddCard] = useState<boolean>(false);
+
+  // local
+  // const KEY_LOCAL = "tokenIdLogin";
+  const CURR_BOARD = "currentBoard";
 
   const handleShowAddList = () => {
     setShowAddList(!showAddList);
