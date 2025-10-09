@@ -197,6 +197,28 @@ export default function Dashboard() {
     navigate("/dashboardDetail");
   };
 
+  const handleClickedStar = async (idBoard: string) => {
+    const listB: Board[] = [...listBoards, ...listClosedBoards];
+    const seledtedBoard = listB.find((el) => el.id === idBoard);
+
+    if (seledtedBoard) {
+      const updateBoard = {
+        ...seledtedBoard,
+        is_started: !seledtedBoard.is_started,
+      };
+
+      try {
+        await dispath(updateDashboard(updateBoard));
+        showToastSuccess("Đánh dấu sao thành công");
+
+        dispath(getDashboard());
+      } catch (error) {
+        console.error("Error: ", error);
+        showToastError("Lỗi đánh dấu sao");
+      }
+    }
+  };
+
   return (
     <>
       <header className="header">
@@ -331,7 +353,12 @@ export default function Dashboard() {
                         <span>Edit this board</span>
                       </div>
 
-                      <i className="fa-solid fa-star"></i>
+                      <i
+                        className={`fa-solid fa-star ${
+                          el.is_started ? "isStarred" : ""
+                        }`}
+                        onClick={() => handleClickedStar(el.id)}
+                      ></i>
                     </div>
                   );
                 })}
@@ -379,7 +406,11 @@ export default function Dashboard() {
                       <img src={editBoard} alt="img edit" />
                       <span>Edit this board</span>
                     </div>
-                    <i className="fa-solid fa-star"></i>
+                    <i
+                      className={`fa-solid fa-star ${
+                        el.is_started ? "isStarred" : ""
+                      }`}
+                    ></i>
                   </div>
                 ))}
               </div>
@@ -416,7 +447,11 @@ export default function Dashboard() {
                       <img src={editBoard} alt="img edit" />
                       <span>Edit this board</span>
                     </div>
-                    <i className="fa-solid fa-star"></i>
+                    <i
+                      className={`fa-solid fa-star ${
+                        el.is_started ? "isStarred" : ""
+                      }`}
+                    ></i>
                   </div>
                 ))}
               </div>
@@ -455,7 +490,11 @@ export default function Dashboard() {
                       <img src={editBoard} alt="img edit" />
                       <span>Edit this board</span>
                     </div>
-                    <i className="fa-solid fa-star"></i>
+                    <i
+                      className={`fa-solid fa-star ${
+                        el.is_started ? "isStarred" : ""
+                      }`}
+                    ></i>
                   </div>
                 ))}
               </div>

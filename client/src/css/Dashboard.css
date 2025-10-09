@@ -156,6 +156,11 @@
   display: none;
 }
 
+.item-boards .isStarred {
+  color: #d96c54 !important;
+  display: block !important;
+}
+
 .item-boards:hover .edit-board {
   display: flex;
 }
