@@ -40,8 +40,8 @@ import type { Board, List, Task } from "../utils/types";
 import { useNavigate } from "react-router-dom";
 import { showToastError, showToastSuccess } from "../utils/toast";
 import { Modal } from "bootstrap";
-import { addList, getList, updateList } from "../slices/listSlice";
-import { getTask } from "../slices/taskSlice";
+import { addList, deleteList, getList, updateList } from "../slices/listSlice";
+import { addTask, getTask } from "../slices/taskSlice";
 
 export default function BoardDetail() {
   // control modal
@@ -53,8 +53,10 @@ export default function BoardDetail() {
   const [editingListId, setEditingListId] = useState<string | null>(null);
 
   // handle card
-  const [showTitleAddCard, setShowTitleAddCard] = useState<boolean>(true);
-  const [showAddCard, setShowAddCard] = useState<boolean>(false);
+  const [activeListAddCard, setActiveListAddCard] = useState<string | null>(
+    null
+  );
+  const [newCardTitle, setNewCardTitle] = useState<string>("");
 
   // local
   const KEY_LOCAL = "tokenIdLogin";
@@ -88,9 +90,49 @@ export default function BoardDetail() {
     setShowTitleAddList(!showTitleAddList);
   };
 
-  const handleShowAddCard = () => {
-    setShowAddCard(!showAddCard);
-    setShowTitleAddCard(!showTitleAddCard);
+  // add task
+  const handleShowAddCard = (listId: string) => {
+    if (activeListAddCard === listId) {
+      setActiveListAddCard(null);
+    } else {
+      setActiveListAddCard(listId);
+    }
+    setNewCardTitle("");
+  };
+
+  const handleAddCard = async (listId: string) => {
+    if (!newCardTitle.trim()) {
+      showToastError("Tên card không được để trống");
+      return;
+    }
+
+    const checkTitleCard = tasks.find(
+      (el) => el.title.trim() === newCardTitle.trim()
+    );
+    if (checkTitleCard) {
+      showToastError("Tên card không được trùng");
+      return;
+    }
+
+    const newTask: Task = {
+      id: uuidv4(),
+      list_id: listId,
+      title: newCardTitle.trim(),
+      status: false,
+      created_at: new Date().toISOString(),
+      description: "",
+      due_date: "",
+    };
+
+    try {
+      await dispath(addTask(newTask)).unwrap();
+      showToastSuccess("Thêm card thành công");
+      dispath(getTask());
+      setActiveListAddCard(null);
+    } catch (error) {
+      console.error(error);
+      showToastError("Lỗi thêm card");
+    }
   };
 
   const handleDeleteBoard = async () => {
@@ -183,6 +225,14 @@ export default function BoardDetail() {
       return;
     }
 
+    const checkTitleList = lists.find(
+      (el) => el.title.trim() === valueInputAddList.trim()
+    );
+    if (checkTitleList) {
+      showToastError("Tên list không được trùng");
+      return;
+    }
+
     const dateNow = new Date().toISOString();
     const newList: List = {
       id: uuidv4(),
@@ -205,9 +255,9 @@ export default function BoardDetail() {
     }
   };
 
+  // update title list
   const [valueInputUpdateTitleList, setValueInputUpdateTitleList] =
     useState<string>("");
-  // update title list
   const handleUpdateTitleList = async (listId: string) => {
     if (!valueInputUpdateTitleList) {
       showToastError("Tiêu đề danh sách không được trống");
@@ -225,6 +275,33 @@ export default function BoardDetail() {
     } catch (error) {
       console.error(error);
       showToastError("Lỗi cập nhật tiêu đề list");
+    }
+  };
+
+  // del list
+  const [showCloseListModal, setShowCloseListModal] = useState(false);
+  const [idListDel, setIdListDel] = useState<string>("");
+  useEffect(() => {
+    if (showCloseListModal) document.body.classList.add("modal-open");
+    else document.body.classList.remove("modal-open");
+  }, [showCloseListModal]);
+  const handleDeleteList = async () => {
+    if (!idListDel) return;
+
+    try {
+      await dispath(deleteList(idListDel));
+
+      const modalEl = document.getElementById("closeListModal");
+      if (modalEl) {
+        const modalInstance = Modal.getInstance(modalEl) || new Modal(modalEl);
+        modalInstance.hide();
+      }
+
+      showToastSuccess("Xóa list thành công");
+      dispath(getList());
+    } catch (error) {
+      console.error(error);
+      showToastError("Lỗi xóa list");
     }
   };
 
@@ -406,38 +483,44 @@ export default function BoardDetail() {
                   </div>
 
                   <div className="last-item">
-                    {showTitleAddCard && (
+                    {activeListAddCard !== list.id ? (
                       <div className="part-show">
                         <button
                           className="btnShowAddCard"
-                          onClick={handleShowAddCard}
+                          onClick={() => handleShowAddCard(list.id)}
                         >
                           <img src={btnAdd} alt="icon-add" />
                           <span>Add card</span>
                         </button>
                         <img
                           className="iconDelList"
-                          // onClick="getIndexDel(${index})"
                           src={addCardIcon}
                           alt="icon-add-card"
-                          data-bs-toggle="modal"
-                          data-bs-target="#closeListModal"
+                          onClick={() => {
+                            setIdListDel(list.id);
+                            setShowCloseListModal(true);
+                          }}
                         />
                       </div>
-                    )}
-
-                    {showAddCard && (
+                    ) : (
                       <div className="addAnotherCard">
                         <textarea
                           placeholder="Add a card"
                           className="inputTitleCard"
+                          value={newCardTitle}
+                          onChange={(e) => setNewCardTitle(e.target.value)}
                         ></textarea>
 
                         <div className="confirm-add">
-                          <button className="btnAddCard">Add a card</button>
+                          <button
+                            className="btnAddCard"
+                            onClick={() => handleAddCard(list.id)}
+                          >
+                            Add a card
+                          </button>
                           <span
                             className="spanCloseCard"
-                            onClick={handleShowAddCard}
+                            onClick={() => setActiveListAddCard(null)}
                           >
                             ✖︎
                           </span>
@@ -627,33 +710,76 @@ export default function BoardDetail() {
       </div>
 
       {/* Modal Close list */}
-      <div className="modal fade" id="closeListModal" tabIndex={-1}>
-        <div className="modal-dialog modal-dialog-scrollable">
-          <div className="modal-content">
-            <div className="modal-header popular">
-              <img src={comfirmCloseIcon} alt="icon-confirm" />
-              <p className="question">Are you sure?</p>
-              <p className="remind">You won't be able to revert this!</p>
-              <div className="d-flex justify-content-center list-btn">
-                <button
-                  id="btnConfirmDelList"
-                  type="button"
-                  className="btn my-btn-create"
-                >
-                  Yes, delete it!
-                </button>
-                <button
-                  type="button"
-                  className="btn my-btn-close"
-                  data-bs-dismiss="modal"
-                >
-                  Cancel
-                </button>
+      {showCloseListModal && (
+        <>
+          <div className="modal-backdrop fade show"></div>
+          <div
+            className="modal fade show"
+            style={{ display: "block" }}
+            tabIndex={-1}
+            role="dialog"
+          >
+            <div className="modal-dialog modal-dialog-scrollable">
+              <div className="modal-content">
+                <div className="modal-header popular">
+                  <img src={comfirmCloseIcon} alt="icon-confirm" />
+                  <p className="question">Are you sure?</p>
+                  <p className="remind">You won't be able to revert this!</p>
+
+                  <div className="d-flex justify-content-center list-btn">
+                    <button
+                      className="btn my-btn-create"
+                      onClick={() => {
+                        handleDeleteList();
+                        setShowCloseListModal(false);
+                      }}
+                    >
+                      Yes, delete it!
+                    </button>
+                    <button
+                      className="btn my-btn-close"
+                      onClick={() => setShowCloseListModal(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      {/* {showCloseListModal && (
+        <div className="modal fade show" style={{ display: "block" }}>
+          <div className="modal-dialog modal-dialog-scrollable">
+            <div className="modal-content">
+              <div className="modal-header popular">
+                <img src={comfirmCloseIcon} alt="icon-confirm" />
+                <p className="question">Are you sure?</p>
+                <p className="remind">You won't be able to revert this!</p>
+
+                <div className="d-flex justify-content-center list-btn">
+                  <button
+                    className="btn my-btn-create"
+                    onClick={() => {
+                      handleDeleteList();
+                      setShowCloseListModal(false);
+                    }}
+                  >
+                    Yes, delete it!
+                  </button>
+                  <button
+                    className="btn my-btn-close"
+                    onClick={() => setShowCloseListModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )} */}
 
       {/* Modal Task Detail */}
       <div className="modal fade modal-lg" id="taskDetailModal" tabIndex={-1}>
