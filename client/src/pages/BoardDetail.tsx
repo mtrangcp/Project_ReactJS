@@ -40,7 +40,7 @@ import type { Board, List, Task } from "../utils/types";
 import { useNavigate } from "react-router-dom";
 import { showToastError, showToastSuccess } from "../utils/toast";
 import { Modal } from "bootstrap";
-import { addList, getList } from "../slices/listSlice";
+import { addList, getList, updateList } from "../slices/listSlice";
 import { getTask } from "../slices/taskSlice";
 
 export default function BoardDetail() {
@@ -50,13 +50,7 @@ export default function BoardDetail() {
   const [showAddList, setShowAddList] = useState<boolean>(false);
   const [valueInputAddList, setValueInputAddList] = useState<string>("");
   // edit title list
-  const [showTitleList, setShowTitleList] = useState<boolean>(true);
-  const [showInputEditTitleList, setInputEditTitleList] =
-    useState<boolean>(false);
-
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const spanRef = useRef<HTMLSpanElement | null>(null);
-  const titleWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [editingListId, setEditingListId] = useState<string | null>(null);
 
   // handle card
   const [showTitleAddCard, setShowTitleAddCard] = useState<boolean>(true);
@@ -99,11 +93,6 @@ export default function BoardDetail() {
     setShowTitleAddCard(!showTitleAddCard);
   };
 
-  const handleEditTitleList = () => {
-    setShowTitleList(!showTitleList);
-    setInputEditTitleList(!showInputEditTitleList);
-  };
-
   const handleDeleteBoard = async () => {
     const updateBoard = { ...boardCurrent, is_closed: !boardCurrent.is_closed };
 
@@ -135,23 +124,6 @@ export default function BoardDetail() {
       showToastError("Lỗi xóa board");
     }
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-
-      if (
-        titleWrapperRef.current &&
-        !titleWrapperRef.current.contains(target)
-      ) {
-        setShowTitleList(true);
-        setInputEditTitleList(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // calendar
   const calendarRef = useRef(null);
@@ -224,9 +196,35 @@ export default function BoardDetail() {
       showToastSuccess("Thêm mới list thành công");
       setValueInputAddList("");
       dispath(getList());
+
+      setShowTitleAddList(true);
+      setShowAddList(false);
     } catch (error) {
       console.error("Error: ", error);
       showToastError("Lỗi thêm list");
+    }
+  };
+
+  const [valueInputUpdateTitleList, setValueInputUpdateTitleList] =
+    useState<string>("");
+  // update title list
+  const handleUpdateTitleList = async (listId: string) => {
+    if (!valueInputUpdateTitleList) {
+      showToastError("Tiêu đề danh sách không được trống");
+      return;
+    }
+
+    try {
+      const listToUpdate = lists.find((el) => el.id === listId);
+      if (!listToUpdate) return;
+
+      const updatedList = { ...listToUpdate, title: valueInputUpdateTitleList };
+      await dispath(updateList(updatedList));
+      dispath(getList());
+      showToastSuccess("Cập nhật tiêu đề list thành công");
+    } catch (error) {
+      console.error(error);
+      showToastError("Lỗi cập nhật tiêu đề list");
     }
   };
 
@@ -345,22 +343,29 @@ export default function BoardDetail() {
 
           <div className="toDo-list" id="toDo-lists">
             {listsOfBoardCurr.map((list, index) => {
+              const isEditing = editingListId === list.id;
               return (
                 <div className="item-toDo" key={list.id}>
-                  <div className="heading" ref={titleWrapperRef}>
-                    {showInputEditTitleList && (
+                  <div className="heading">
+                    {isEditing ? (
                       <input
-                        ref={inputRef}
                         type="text"
-                        className="updateTitleList"
-                        placeholder="Todo"
                         autoFocus
+                        defaultValue={list.title}
+                        onBlur={() => setEditingListId(null)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            setEditingListId(null);
+                            handleUpdateTitleList(list.id);
+                          }
+                        }}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          setValueInputUpdateTitleList(e.target.value)
+                        }
                       />
-                    )}
-                    {showTitleList && (
+                    ) : (
                       <span
-                        ref={spanRef}
-                        onClick={handleEditTitleList}
+                        onClick={() => setEditingListId(list.id)}
                         className="titleList"
                       >
                         {list.title}
