@@ -118,7 +118,7 @@ export default function Dashboard() {
         modalElement.addEventListener(
           "hidden.bs.modal",
           () => {
-            Modal.getInstance(modalElement)?.dispose(); // 🧹 xoá instance cũ
+            Modal.getInstance(modalElement)?.dispose();
             document.body.classList.remove("modal-open");
 
             const backdrop = document.querySelector(".modal-backdrop");

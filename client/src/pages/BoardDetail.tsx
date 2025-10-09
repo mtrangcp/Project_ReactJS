@@ -32,6 +32,13 @@ import moreIcon from "../assets/icons/icon-more.png";
 import addCardIcon from "../assets/icons/add-card.png";
 
 import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getDashboard, updateDashboard } from "../slices/dashboardSlice";
+import type { AppDispath, RootState } from "../store/store";
+import type { Board } from "../utils/types";
+import { useNavigate } from "react-router-dom";
+import { showToastError } from "../utils/toast";
+import { Modal } from "bootstrap";
 
 export default function BoardDetail() {
   // control modal
@@ -54,6 +61,18 @@ export default function BoardDetail() {
   // local
   // const KEY_LOCAL = "tokenIdLogin";
   const CURR_BOARD = "currentBoard";
+  const { dashboards } = useSelector((state: RootState) => state.boards);
+  const dispath = useDispatch<AppDispath>();
+  const navigate = useNavigate();
+
+  const idBoardCurrent = localStorage.getItem(CURR_BOARD);
+  useEffect(() => {
+    dispath(getDashboard());
+  }, [dispath]);
+
+  const boardCurrent = dashboards.find(
+    (el) => el.id === idBoardCurrent
+  ) as Board;
 
   const handleShowAddList = () => {
     setShowAddList(!showAddList);
@@ -68,6 +87,38 @@ export default function BoardDetail() {
   const handleEditTitleList = () => {
     setShowTitleList(!showTitleList);
     setInputEditTitleList(!showInputEditTitleList);
+  };
+
+  const handleDeleteBoard = async () => {
+    const updateBoard = { ...boardCurrent, is_closed: !boardCurrent.is_closed };
+
+    try {
+      await dispath(updateDashboard(updateBoard));
+      const modalEl = document.getElementById("closeBoardModal");
+      if (modalEl) {
+        const modalInstance = Modal.getInstance(modalEl) || new Modal(modalEl);
+
+        modalInstance.hide();
+
+        modalEl.addEventListener(
+          "hidden.bs.modal",
+          () => {
+            Modal.getInstance(modalEl)?.dispose();
+            document.body.classList.remove("modal-open");
+
+            const backdrop = document.querySelector(".modal-backdrop");
+            if (backdrop) backdrop.remove();
+          },
+          { once: true }
+        );
+      }
+
+      navigate("/dashboard");
+      localStorage.removeItem(CURR_BOARD);
+    } catch (error) {
+      console.error("Error: ", error);
+      showToastError("Lỗi xóa board");
+    }
   };
 
   useEffect(() => {
@@ -179,10 +230,19 @@ export default function BoardDetail() {
               <div className="list-your-boards">
                 {/* list board */}
                 <div className="item">
-                  <div className="img"></div>
-                  <span className="title-clamp">
-                    Tổ chức sự kiện Year-end party !
-                  </span>
+                  <div
+                    className="img"
+                    style={
+                      boardCurrent.type === "color"
+                        ? { background: boardCurrent.backdrop }
+                        : {
+                            backgroundImage: `url(${boardCurrent.backdrop})`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                          }
+                    }
+                  ></div>
+                  <span className="title-clamp">{boardCurrent.title}</span>
                   {/* <i
                     className="fa-solid fa-star star-black"
                     // onclick="removeStar()"
@@ -202,7 +262,7 @@ export default function BoardDetail() {
           <div className="overlay-title">
             <div className="over-left">
               <span className="title" id="board-name">
-                Tổ chức sự kiện Year-end party !
+                {boardCurrent.title}
               </span>
               <img
                 id="title-star"
@@ -289,51 +349,6 @@ export default function BoardDetail() {
                 <div className="one-item">
                   <i
                     id="statusTask"
-                    className="fa-solid fa-circle-check check-active"
-                    // onclick="updateStatusTask(${index},${indexTask})"
-                  ></i>
-                  <span
-                    data-list-index="${index}"
-                    data-task-index="${indexTask}"
-                    // onclick="openTaskDetailModal(${index}, ${indexTask})"
-                  >
-                    Lên kịch bản chương trình
-                  </span>
-                </div>
-
-                <div className="one-item">
-                  <i
-                    id="statusTask"
-                    className="fa-solid fa-circle-check"
-                    // onclick="updateStatusTask(${index},${indexTask})"
-                  ></i>
-                  <span
-                    data-list-index="${index}"
-                    data-task-index="${indexTask}"
-                    // onclick="openTaskDetailModal(${index}, ${indexTask})"
-                  >
-                    Chuẩn bị kịch
-                  </span>
-                </div>
-
-                <div className="one-item">
-                  <i
-                    id="statusTask"
-                    className="fa-solid fa-circle-check check-active"
-                    // onclick="updateStatusTask(${index},${indexTask})"
-                  ></i>
-                  <span
-                    data-list-index="${index}"
-                    data-task-index="${indexTask}"
-                    // onclick="openTaskDetailModal(${index}, ${indexTask})"
-                  >
-                    Kịch bản
-                  </span>
-                </div>
-
-                <div className="one-item">
-                  <i
-                    id="statusTask"
                     className="fa-solid fa-circle-check"
                     // onclick="updateStatusTask(${index},${indexTask})"
                   ></i>
@@ -389,75 +404,6 @@ export default function BoardDetail() {
               </div>
             </div>
 
-            {/* <div className="item-toDo">
-              <div className="heading">
-                {showInputEditTitleList && (
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    className="updateTitleList"
-                    placeholder="Todo"
-                    autoFocus
-                  />
-                )}
-
-                {showTitleList && (
-                  <span
-                    ref={spanRef}
-                    onClick={handleEditTitleList}
-                    className="titleList"
-                  >
-                    In-progress
-                  </span>
-                )}
-                <div className="icon-util">
-                  <img className="icon-arrow" src={arrowIcon} alt="arrow" />
-                  <img className="icon-more" src={moreIcon} alt="more" />
-                </div>
-              </div>
-
-              <div className="last-item">
-                {showTitleAddCard && (
-                  <div className="part-show">
-                    <button
-                      className="btnShowAddCard"
-                      onClick={handleShowAddCard}
-                    >
-                      <img src={btnAdd} alt="icon-add" />
-                      <span>Add card</span>
-                    </button>
-                    <img
-                      className="iconDelList"
-                      // onClick="getIndexDel(${index})"
-                      src={addCardIcon}
-                      alt="icon-add-card"
-                      data-bs-toggle="modal"
-                      data-bs-target="#closeListModal"
-                    />
-                  </div>
-                )}
-
-                {showAddCard && (
-                  <div className="addAnotherCard">
-                    <textarea
-                      placeholder="Add a card"
-                      className="inputTitleCard"
-                    ></textarea>
-
-                    <div className="confirm-add">
-                      <button className="btnAddCard">Add a card</button>
-                      <span
-                        className="spanCloseCard"
-                        onClick={handleShowAddCard}
-                      >
-                        ✖︎
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div> */}
-
             <div className="item-toDo last-item-list">
               <div className="last-item">
                 {showTitleAddList && (
@@ -512,6 +458,7 @@ export default function BoardDetail() {
                 aria-label="Close"
               />
             </div>
+
             <div className="modal-body">
               <div className="keyboard">
                 <p className="title">Keyword</p>
@@ -611,6 +558,7 @@ export default function BoardDetail() {
                   id="btnConfirmDelete"
                   type="button"
                   className="btn my-btn-create"
+                  onClick={handleDeleteBoard}
                 >
                   Yes, close it!
                 </button>
