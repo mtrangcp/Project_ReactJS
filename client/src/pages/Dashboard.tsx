@@ -60,7 +60,9 @@ export default function Dashboard() {
     dispath(getDashboard());
   }, [dispath]);
 
-  const listBoards = dashboards.filter((el) => el.user_id === idUserLocal);
+  const listBoards = dashboards.filter(
+    (el) => el.user_id === idUserLocal && !el.is_closed
+  );
   const listStarredBoards = dashboards.filter(
     (el) => el.user_id === idUserLocal && el.is_started
   );
@@ -76,6 +78,14 @@ export default function Dashboard() {
   const handleClickAdd = async () => {
     if (!inputTitleAdd) {
       showToastError("Title không được phép trống");
+      return;
+    }
+
+    const listB: Board[] = [...listBoards, ...listClosedBoards];
+    const checkDup = listB.find((el) => el.title === inputTitleAdd);
+
+    if (checkDup) {
+      showToastError("Title không được phép trùng");
       return;
     }
 
@@ -264,85 +274,116 @@ export default function Dashboard() {
         </aside>
 
         <main className="main">
-          <div className="yourWorkspaces">
-            <div className="workspaces-left">
-              <img src={boardsBlackIcon} alt="img Workspaces" />
-              <span> Your Workspaces</span>
-            </div>
-
-            <div className="workspaces-right">
-              <div className="btn-gr">
-                <button className="btn-share">Share</button>
-                <button className="btn-export">Export</button>
-              </div>
-
-              <div className="select-time">
-                <img src={calenderIcon} alt="img calender" />
-                <span>This week</span>
-                <img
-                  className="btn-select"
-                  src={btnSelectIcon}
-                  alt="img select"
-                />
-              </div>
-            </div>
-          </div>
-
           {/*  */}
           {activeSection === "boards" && (
-            <div className="listBoards bg-img" id="listBoard">
-              {listBoards.map((el) => {
-                return (
+            <>
+              <div className="yourWorkspaces">
+                <div className="workspaces-left">
+                  <img src={boardsBlackIcon} alt="img Workspaces" />
+                  <span> Your Workspaces</span>
+                </div>
+
+                <div className="workspaces-right">
+                  <div className="btn-gr">
+                    <button className="btn-share">Share</button>
+                    <button className="btn-export">Export</button>
+                  </div>
+
+                  <div className="select-time">
+                    <img src={calenderIcon} alt="img calender" />
+                    <span>This week</span>
+                    <img
+                      className="btn-select"
+                      src={btnSelectIcon}
+                      alt="img select"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="listBoards bg-img" id="listBoard">
+                {listBoards.map((el) => {
+                  return (
+                    <div
+                      key={el.id}
+                      className="item-boards"
+                      style={
+                        el.type === "color"
+                          ? { background: el.backdrop }
+                          : {
+                              backgroundImage: `url(${
+                                el.backdrop || imageBackgrounds[0]
+                              })`,
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                            }
+                      }
+                    >
+                      <p onClick={() => handleClickBoardToBoarddetail(el.id)}>
+                        {el.title}
+                      </p>
+
+                      <div
+                        className="edit-board"
+                        onClick={() => handleOpenEditModal(el)}
+                      >
+                        <img src={editBoard} alt="img edit" />
+                        <span>Edit this board</span>
+                      </div>
+
+                      <i className="fa-solid fa-star"></i>
+                    </div>
+                  );
+                })}
+
+                <div
+                  className="item-default"
+                  onClick={() => {
+                    const modalElement =
+                      document.getElementById("createModalBoard");
+                    if (modalElement) {
+                      const modal = new Modal(modalElement);
+                      modal.show();
+                    }
+                  }}
+                >
+                  <p>Create new board</p>
+                </div>
+              </div>
+
+              <div className="yourWorkspaces" id="starred-title">
+                <div className="workspaces-left">
+                  <img src={starredBoardsBlackIcon} alt="img Workspaces" />
+                  <span> Starred Boards</span>
+                </div>
+              </div>
+
+              <div className="listBoards" id="starredBoard">
+                {listStarredBoards.map((el) => (
                   <div
                     key={el.id}
                     className="item-boards"
                     style={
                       el.type === "color"
                         ? { background: el.backdrop }
-                        : {
-                            backgroundImage: `url(${
-                              el.backdrop || imageBackgrounds[0]
-                            })`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                          }
+                        : { backgroundImage: `url(${el.backdrop})` }
                     }
                   >
                     <p onClick={() => handleClickBoardToBoarddetail(el.id)}>
                       {el.title}
                     </p>
-
                     <div
                       className="edit-board"
-                      // data-bs-toggle="modal"
-                      // data-bs-target="#scrollModalEdit"
                       onClick={() => handleOpenEditModal(el)}
                     >
                       <img src={editBoard} alt="img edit" />
                       <span>Edit this board</span>
                     </div>
-
                     <i className="fa-solid fa-star"></i>
                   </div>
-                );
-              })}
-
-              <div
-                className="item-default"
-                // data-bs-toggle="modal"
-                // data-bs-target="#createModalBoard"
-                onClick={() => {
-                  const modalElement =
-                    document.getElementById("createModalBoard");
-                  if (modalElement) {
-                    const modal = new Modal(modalElement);
-                    modal.show();
-                  }
-                }}
-              >
-                <p>Create new board</p>
+                ))}
               </div>
-            </div>
+            </>
           )}
 
           {activeSection === "starred" && (
