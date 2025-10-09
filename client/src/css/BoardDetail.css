@@ -1,9 +1,20 @@
+.my-container {
+  background-color: pink !important;
+}
+
 .main-detail {
-  height: 100vh;
-  width: calc(100% - (100% / 6));
+  height: 100%;
+  /* width: calc(100% - (100% / 6)); */
+  width: 100%;
   margin-left: calc(100% / 6);
   background-color: #fff;
   padding-top: 12px !important;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow-x: hidden;
+  white-space: normal;
 }
 
 .workspaces .your-boards .title {
@@ -104,6 +115,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .main-detail .overlay-title .over-right {
@@ -188,11 +200,17 @@
   padding: 33px 24px;
   display: flex;
   gap: 17px;
+  height: 100%;
+
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
 .main-detail .toDo-list .item-toDo {
+  flex-shrink: 0;
   height: fit-content;
-  width: 272px;
+  max-height: 100%;
+  width: 272px !important;
   border-radius: 12px;
   background-color: #f1f2f4;
   box-shadow: 0px 1px 1px 0px rgba(9, 30, 66, 0.25),
@@ -408,6 +426,14 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .item-toDo .list-item .one-item span:hover {

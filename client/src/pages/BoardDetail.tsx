@@ -1,10 +1,11 @@
-import "../css/BoardDetail.css";
 import "../css/GeneralStyle.css";
+import "../css/BoardDetail.css";
 
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
+import { v4 as uuidv4 } from "uuid";
 
 import trelloLogoFull from "../assets/images/trello-logo-full.png";
 import boardsIcon from "../assets/icons/boards.png";
@@ -31,15 +32,15 @@ import arrowIcon from "../assets/icons/icon-arrow.png";
 import moreIcon from "../assets/icons/icon-more.png";
 import addCardIcon from "../assets/icons/add-card.png";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDashboard, updateDashboard } from "../slices/dashboardSlice";
 import type { AppDispath, RootState } from "../store/store";
-import type { Board, Task } from "../utils/types";
+import type { Board, List, Task } from "../utils/types";
 import { useNavigate } from "react-router-dom";
-import { showToastError } from "../utils/toast";
+import { showToastError, showToastSuccess } from "../utils/toast";
 import { Modal } from "bootstrap";
-import { getList } from "../slices/listSlice";
+import { addList, getList } from "../slices/listSlice";
 import { getTask } from "../slices/taskSlice";
 
 export default function BoardDetail() {
@@ -47,6 +48,7 @@ export default function BoardDetail() {
   // handle add list
   const [showTitleAddList, setShowTitleAddList] = useState<boolean>(true);
   const [showAddList, setShowAddList] = useState<boolean>(false);
+  const [valueInputAddList, setValueInputAddList] = useState<string>("");
   // edit title list
   const [showTitleList, setShowTitleList] = useState<boolean>(true);
   const [showInputEditTitleList, setInputEditTitleList] =
@@ -202,6 +204,32 @@ export default function BoardDetail() {
     console.log("Remove clicked");
   };
 
+  // add list
+  const handleAddAnotherList = async () => {
+    if (!valueInputAddList) {
+      showToastError("Tên list không được để trống");
+      return;
+    }
+
+    const dateNow = new Date().toISOString();
+    const newList: List = {
+      id: uuidv4(),
+      board_id: idBoardCurrent!,
+      title: valueInputAddList,
+      created_at: dateNow,
+    };
+
+    try {
+      await dispath(addList(newList)).unwrap();
+      showToastSuccess("Thêm mới list thành công");
+      setValueInputAddList("");
+      dispath(getList());
+    } catch (error) {
+      console.error("Error: ", error);
+      showToastError("Lỗi thêm list");
+    }
+  };
+
   return (
     <>
       <header className="header">
@@ -240,33 +268,37 @@ export default function BoardDetail() {
                 <span>Your boards</span>
                 <img src={btnAdd} alt="img-add" />
               </div>
+
               <div className="list-your-boards">
-                {/* list board */}
-                <div className="item">
-                  <div
-                    className="img"
-                    style={
-                      boardCurrent.type === "color"
-                        ? { background: boardCurrent.backdrop }
-                        : {
-                            backgroundImage: `url(${boardCurrent.backdrop})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                          }
-                    }
-                  ></div>
-                  <span className="title-clamp">{boardCurrent.title}</span>
-                  {/* <i
-                    className="fa-solid fa-star star-black"
-                    // onclick="removeStar()"
-                  ></i> */}
-                  <i
-                    className="fa-solid fa-star star-white"
-                    // onclick="addStar()"
-                  ></i>
-                </div>
+                {listBoards.map((board) => {
+                  return (
+                    <div
+                      className={`item ${
+                        boardCurrent.id === board.id ? "clicked-item" : ""
+                      }`}
+                    >
+                      <div
+                        className="img"
+                        style={
+                          board.type === "color"
+                            ? { background: board.backdrop }
+                            : {
+                                backgroundImage: `url(${board.backdrop})`,
+                                backgroundSize: "cover",
+                                backgroundPosition: "center",
+                              }
+                        }
+                      ></div>
+                      <span className="title-clamp">{board.title}</span>
+                      {board.is_started ? (
+                        <i className="fa-solid fa-star star-black"></i>
+                      ) : (
+                        <i className="fa-solid fa-star star-white"></i>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-              {/*  */}
             </div>
           </div>
         </aside>
@@ -312,7 +344,6 @@ export default function BoardDetail() {
           </div>
 
           <div className="toDo-list" id="toDo-lists">
-            {/* list danh cong vc */}
             {listsOfBoardCurr.map((list, index) => {
               return (
                 <div className="item-toDo" key={list.id}>
@@ -367,40 +398,6 @@ export default function BoardDetail() {
                           </div>
                         );
                       })}
-
-                    {/* <div
-                      className="one-item"
-                      data-bs-toggle="modal"
-                      data-bs-target="#taskDetailModal"
-                    >
-                      <i
-                        id="statusTask"
-                        className="fa-solid fa-circle-check check-active"
-                        // onclick="updateStatusTask(${index},${indexTask})"
-                      ></i>
-                      <span
-                        data-list-index="${index}"
-                        data-task-index="${indexTask}"
-                        // onclick="openTaskDetailModal(${index}, ${indexTask})"
-                      >
-                        Thuê DJ
-                      </span>
-                    </div>
-
-                    <div className="one-item">
-                      <i
-                        id="statusTask"
-                        className="fa-solid fa-circle-check"
-                        // onclick="updateStatusTask(${index},${indexTask})"
-                      ></i>
-                      <span
-                        data-list-index="${index}"
-                        data-task-index="${indexTask}"
-                        // onclick="openTaskDetailModal(${index}, ${indexTask})"
-                      >
-                        Thuê MC
-                      </span>
-                    </div> */}
                   </div>
 
                   <div className="last-item">
@@ -464,10 +461,15 @@ export default function BoardDetail() {
                       autoFocus={true}
                       type="text"
                       placeholder="Add another list"
-                      id="inputAddList"
+                      value={valueInputAddList}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setValueInputAddList(e.target.value);
+                      }}
                     />
                     <div className="confirm-add">
-                      <button id="btnAddList">Add another list</button>
+                      <button id="btnAddList" onClick={handleAddAnotherList}>
+                        Add another list
+                      </button>
                       <span id="spanClose" onClick={handleShowAddList}>
                         ✖︎
                       </span>
