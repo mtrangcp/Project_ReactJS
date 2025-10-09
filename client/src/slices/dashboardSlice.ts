@@ -66,7 +66,7 @@ export const dashboardSlice = createSlice({
         }
       )
       .addCase(getDashboard.rejected, (state, action) => {
-        state.status = "fulfilled";
+        state.status = "rejected";
         state.error = action.error.message || "get data failed";
       })
       // add

@@ -35,10 +35,12 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDashboard, updateDashboard } from "../slices/dashboardSlice";
 import type { AppDispath, RootState } from "../store/store";
-import type { Board } from "../utils/types";
+import type { Board, Task } from "../utils/types";
 import { useNavigate } from "react-router-dom";
 import { showToastError } from "../utils/toast";
 import { Modal } from "bootstrap";
+import { getList } from "../slices/listSlice";
+import { getTask } from "../slices/taskSlice";
 
 export default function BoardDetail() {
   // control modal
@@ -59,20 +61,31 @@ export default function BoardDetail() {
   const [showAddCard, setShowAddCard] = useState<boolean>(false);
 
   // local
-  // const KEY_LOCAL = "tokenIdLogin";
+  const KEY_LOCAL = "tokenIdLogin";
   const CURR_BOARD = "currentBoard";
   const { dashboards } = useSelector((state: RootState) => state.boards);
+  const { lists } = useSelector((state: RootState) => state.lists);
+  const { tasks } = useSelector((state: RootState) => state.tasks);
   const dispath = useDispatch<AppDispath>();
   const navigate = useNavigate();
 
   const idBoardCurrent = localStorage.getItem(CURR_BOARD);
+  const idUserLocal = localStorage.getItem(KEY_LOCAL);
+  const listBoards = dashboards.filter((el) => el.user_id === idUserLocal);
+
   useEffect(() => {
     dispath(getDashboard());
+    dispath(getList());
+    dispath(getTask());
   }, [dispath]);
 
   const boardCurrent = dashboards.find(
     (el) => el.id === idBoardCurrent
   ) as Board;
+
+  const listsOfBoardCurr = lists.filter(
+    (el) => el.board_id === boardCurrent.id
+  );
 
   const handleShowAddList = () => {
     setShowAddList(!showAddList);
@@ -300,109 +313,139 @@ export default function BoardDetail() {
 
           <div className="toDo-list" id="toDo-lists">
             {/* list danh cong vc */}
-            <div className="item-toDo">
-              <div className="heading" ref={titleWrapperRef}>
-                {showInputEditTitleList && (
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    className="updateTitleList"
-                    placeholder="Todo"
-                    autoFocus
-                  />
-                )}
-                {showTitleList && (
-                  <span
-                    ref={spanRef}
-                    onClick={handleEditTitleList}
-                    className="titleList"
-                  >
-                    Todo
-                  </span>
-                )}
-                <div className="icon-util">
-                  <img className="icon-arrow" src={arrowIcon} alt="arrow" />
-                  <img className="icon-more" src={moreIcon} alt="more" />
-                </div>
-              </div>
-
-              <div className="list-item" id="list-item-task">
-                <div
-                  className="one-item"
-                  data-bs-toggle="modal"
-                  data-bs-target="#taskDetailModal"
-                >
-                  <i
-                    id="statusTask"
-                    className="fa-solid fa-circle-check check-active"
-                    // onclick="updateStatusTask(${index},${indexTask})"
-                  ></i>
-                  <span
-                    data-list-index="${index}"
-                    data-task-index="${indexTask}"
-                    // onclick="openTaskDetailModal(${index}, ${indexTask})"
-                  >
-                    Thuê DJ
-                  </span>
-                </div>
-
-                <div className="one-item">
-                  <i
-                    id="statusTask"
-                    className="fa-solid fa-circle-check"
-                    // onclick="updateStatusTask(${index},${indexTask})"
-                  ></i>
-                  <span
-                    data-list-index="${index}"
-                    data-task-index="${indexTask}"
-                    // onclick="openTaskDetailModal(${index}, ${indexTask})"
-                  >
-                    Thuê MC
-                  </span>
-                </div>
-              </div>
-
-              <div className="last-item">
-                {showTitleAddCard && (
-                  <div className="part-show">
-                    <button
-                      className="btnShowAddCard"
-                      onClick={handleShowAddCard}
-                    >
-                      <img src={btnAdd} alt="icon-add" />
-                      <span>Add card</span>
-                    </button>
-                    <img
-                      className="iconDelList"
-                      // onClick="getIndexDel(${index})"
-                      src={addCardIcon}
-                      alt="icon-add-card"
-                      data-bs-toggle="modal"
-                      data-bs-target="#closeListModal"
-                    />
-                  </div>
-                )}
-
-                {showAddCard && (
-                  <div className="addAnotherCard">
-                    <textarea
-                      placeholder="Add a card"
-                      className="inputTitleCard"
-                    ></textarea>
-
-                    <div className="confirm-add">
-                      <button className="btnAddCard">Add a card</button>
+            {listsOfBoardCurr.map((list, index) => {
+              return (
+                <div className="item-toDo" key={list.id}>
+                  <div className="heading" ref={titleWrapperRef}>
+                    {showInputEditTitleList && (
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        className="updateTitleList"
+                        placeholder="Todo"
+                        autoFocus
+                      />
+                    )}
+                    {showTitleList && (
                       <span
-                        className="spanCloseCard"
-                        onClick={handleShowAddCard}
+                        ref={spanRef}
+                        onClick={handleEditTitleList}
+                        className="titleList"
                       >
-                        ✖︎
+                        {list.title}
                       </span>
+                    )}
+                    <div className="icon-util">
+                      <img className="icon-arrow" src={arrowIcon} alt="arrow" />
+                      <img className="icon-more" src={moreIcon} alt="more" />
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
+
+                  <div className="list-item" id="list-item-task">
+                    {tasks
+                      .filter((task) => task.list_id === list.id)
+                      .map((task: Task, indexTask) => {
+                        return (
+                          <div
+                            key={task.id}
+                            className="one-item"
+                            data-bs-toggle="modal"
+                            data-bs-target="#taskDetailModal"
+                          >
+                            <i
+                              id="statusTask"
+                              className={`fa-solid fa-circle-check  ${
+                                task.status ? "check-active" : ""
+                              }`}
+                            ></i>
+                            <span
+                              data-list-index={`${index}`}
+                              data-task-index={`${indexTask}`}
+                            >
+                              {task.title}
+                            </span>
+                          </div>
+                        );
+                      })}
+
+                    {/* <div
+                      className="one-item"
+                      data-bs-toggle="modal"
+                      data-bs-target="#taskDetailModal"
+                    >
+                      <i
+                        id="statusTask"
+                        className="fa-solid fa-circle-check check-active"
+                        // onclick="updateStatusTask(${index},${indexTask})"
+                      ></i>
+                      <span
+                        data-list-index="${index}"
+                        data-task-index="${indexTask}"
+                        // onclick="openTaskDetailModal(${index}, ${indexTask})"
+                      >
+                        Thuê DJ
+                      </span>
+                    </div>
+
+                    <div className="one-item">
+                      <i
+                        id="statusTask"
+                        className="fa-solid fa-circle-check"
+                        // onclick="updateStatusTask(${index},${indexTask})"
+                      ></i>
+                      <span
+                        data-list-index="${index}"
+                        data-task-index="${indexTask}"
+                        // onclick="openTaskDetailModal(${index}, ${indexTask})"
+                      >
+                        Thuê MC
+                      </span>
+                    </div> */}
+                  </div>
+
+                  <div className="last-item">
+                    {showTitleAddCard && (
+                      <div className="part-show">
+                        <button
+                          className="btnShowAddCard"
+                          onClick={handleShowAddCard}
+                        >
+                          <img src={btnAdd} alt="icon-add" />
+                          <span>Add card</span>
+                        </button>
+                        <img
+                          className="iconDelList"
+                          // onClick="getIndexDel(${index})"
+                          src={addCardIcon}
+                          alt="icon-add-card"
+                          data-bs-toggle="modal"
+                          data-bs-target="#closeListModal"
+                        />
+                      </div>
+                    )}
+
+                    {showAddCard && (
+                      <div className="addAnotherCard">
+                        <textarea
+                          placeholder="Add a card"
+                          className="inputTitleCard"
+                        ></textarea>
+
+                        <div className="confirm-add">
+                          <button className="btnAddCard">Add a card</button>
+                          <span
+                            className="spanCloseCard"
+                            onClick={handleShowAddCard}
+                          >
+                            ✖︎
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
 
             <div className="item-toDo last-item-list">
               <div className="last-item">
