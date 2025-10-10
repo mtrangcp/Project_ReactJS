@@ -34,7 +34,7 @@
       "description": "",
       "backdrop": "https://res.cloudinary.com/dttookk0w/image/upload/v1759961268/board-title1_scivpc.jpg",
       "type": "image",
-      "is_started": true,
+      "is_started": false,
       "is_closed": false,
       "created_at": "2025-10-09T00:54:42.650Z"
     },
@@ -98,7 +98,7 @@
       "list_id": "LIST_001",
       "title": "Thiết kế giao diện cho anc bs cusdjv  sduchisdd si iods",
       "description": "Tạo giao diện cho các trang",
-      "status": true,
+      "status": false,
       "due_date": "2025-03-05T23:59:59Z",
       "created_at": "2025-02-28T12:30:00Z"
     },
@@ -107,7 +107,7 @@
       "list_id": "LIST_001",
       "title": "Thiết kế chức năng",
       "description": "Tạo chức năng cho các trang",
-      "status": false,
+      "status": true,
       "due_date": "2025-03-05T23:59:59Z",
       "created_at": "2025-02-28T12:30:00Z"
     },
@@ -126,6 +126,15 @@
       "title": "aaa",
       "status": false,
       "created_at": "2025-10-09T20:41:11.410Z",
+      "description": "",
+      "due_date": ""
+    },
+    {
+      "id": "bf056e27-110b-4f3d-a0ce-27db9d4cb7b1",
+      "list_id": "661a32e7-2aee-4c01-8414-520f174db318",
+      "title": "demo 123",
+      "status": false,
+      "created_at": "2025-10-10T01:49:56.329Z",
       "description": "",
       "due_date": ""
     }

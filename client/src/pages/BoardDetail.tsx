@@ -41,7 +41,7 @@ import { useNavigate } from "react-router-dom";
 import { showToastError, showToastSuccess } from "../utils/toast";
 import { Modal } from "bootstrap";
 import { addList, deleteList, getList, updateList } from "../slices/listSlice";
-import { addTask, getTask } from "../slices/taskSlice";
+import { addTask, getTask, updateTask } from "../slices/taskSlice";
 
 export default function BoardDetail() {
   // control modal
@@ -187,7 +187,7 @@ export default function BoardDetail() {
     }
   };
 
-  // Sử dụng useEffect để khởi tạo Flatpickr
+  // khởi tạo Flatpickr
   useEffect(() => {
     if (calendarRef.current) {
       const fp = flatpickr(calendarRef.current, {
@@ -305,6 +305,26 @@ export default function BoardDetail() {
     }
   };
 
+  // change status task
+  const handleClickCircleStatus = async (id: string) => {
+    const selectedTask = tasks.find((el) => el.id === id);
+    if (selectedTask) {
+      const updatedTask: Task = {
+        ...selectedTask,
+        status: !selectedTask.status,
+      };
+
+      try {
+        await dispath(updateTask(updatedTask));
+        showToastSuccess("Thay đổi trạng thái thành công");
+        dispath(getList());
+      } catch (error) {
+        console.error(error);
+        showToastError("Lỗi thay đổi trạng thái");
+      }
+    }
+  };
+
   return (
     <>
       <header className="header">
@@ -322,7 +342,11 @@ export default function BoardDetail() {
           <p>YOUR WORKSPACES</p>
           <div className="workspaces">
             <div className="boards">
-              <a href="#" className="item">
+              <a
+                href=""
+                className="item"
+                onClick={() => navigate("/dashboard")}
+              >
                 <img src={boardsIcon} alt="img boards" />
                 <span>Boards</span>
               </a>
@@ -348,6 +372,7 @@ export default function BoardDetail() {
                 {listBoards.map((board) => {
                   return (
                     <div
+                      key={board.id}
                       className={`item ${
                         boardCurrent.id === board.id ? "clicked-item" : ""
                       }`}
@@ -419,7 +444,7 @@ export default function BoardDetail() {
           </div>
 
           <div className="toDo-list" id="toDo-lists">
-            {listsOfBoardCurr.map((list, index) => {
+            {listsOfBoardCurr.map((list) => {
               const isEditing = editingListId === list.id;
               return (
                 <div className="item-toDo" key={list.id}>
@@ -457,23 +482,19 @@ export default function BoardDetail() {
                   <div className="list-item" id="list-item-task">
                     {tasks
                       .filter((task) => task.list_id === list.id)
-                      .map((task: Task, indexTask) => {
+                      .map((task: Task) => {
                         return (
-                          <div
-                            key={task.id}
-                            className="one-item"
-                            data-bs-toggle="modal"
-                            data-bs-target="#taskDetailModal"
-                          >
+                          <div key={task.id} className="one-item">
                             <i
                               id="statusTask"
                               className={`fa-solid fa-circle-check  ${
                                 task.status ? "check-active" : ""
                               }`}
+                              onClick={() => handleClickCircleStatus(task.id)}
                             ></i>
                             <span
-                              data-list-index={`${index}`}
-                              data-task-index={`${indexTask}`}
+                              data-bs-toggle="modal"
+                              data-bs-target="#taskDetailModal"
                             >
                               {task.title}
                             </span>
@@ -667,9 +688,7 @@ export default function BoardDetail() {
                 <div className="item-status">
                   <input type="checkbox" />
                   <select name="list-labels" id="list-labels">
-                    <option value="" selected={false}>
-                      Select labels
-                    </option>
+                    <option defaultValue="">Select labels</option>
                   </select>
                 </div>
               </div>

@@ -39,7 +39,7 @@ export default function Dashboard() {
   const dispath = useDispatch<AppDispath>();
   const navigate = useNavigate();
 
-  const idUserLocal = localStorage.getItem(KEY_LOCAL);
+  let idUserLocal = localStorage.getItem(KEY_LOCAL);
   const [inputTitleAdd, setInputTitleAdd] = useState<string>("");
   const [selectedBg, setSelectedBg] = useState<string>("");
   const [selectedType, setSelectedType] = useState<"image" | "color" | "">("");
@@ -209,7 +209,7 @@ export default function Dashboard() {
 
       try {
         await dispath(updateDashboard(updateBoard));
-        showToastSuccess("Đánh dấu sao thành công");
+        showToastSuccess("Thay đổi trạng thái thành công");
 
         dispath(getDashboard());
       } catch (error) {
@@ -217,6 +217,12 @@ export default function Dashboard() {
         showToastError("Lỗi đánh dấu sao");
       }
     }
+  };
+
+  const handleLogout = () => {
+    idUserLocal = "";
+    localStorage.removeItem(KEY_LOCAL);
+    navigate("/login");
   };
 
   return (
@@ -282,12 +288,12 @@ export default function Dashboard() {
             <div className="line"></div>
 
             <div className="boards">
-              <a href="#" className="item">
+              <a href="" className="item">
                 <img src={settingIcon} alt="img setting" />
                 <span>Settings</span>
               </a>
 
-              <a href="#" className="item" onClick={() => alert("logout")}>
+              <a href="" className="item" onClick={handleLogout}>
                 <img src={signOutIcon} alt="img signOut" />
                 <span>Sign out</span>
               </a>
@@ -296,7 +302,6 @@ export default function Dashboard() {
         </aside>
 
         <main className="main">
-          {/*  */}
           {activeSection === "boards" && (
             <>
               <div className="yourWorkspaces">
