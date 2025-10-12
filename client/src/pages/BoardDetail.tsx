@@ -39,7 +39,6 @@ import type { AppDispath, RootState } from "../store/store";
 import type { Board, List, Task } from "../utils/types";
 import { useNavigate } from "react-router-dom";
 import { showToastError, showToastSuccess } from "../utils/toast";
-import { Modal } from "bootstrap";
 import { addList, deleteList, getList, updateList } from "../slices/listSlice";
 import { addTask, getTask, updateTask } from "../slices/taskSlice";
 
@@ -140,24 +139,8 @@ export default function BoardDetail() {
 
     try {
       await dispath(updateDashboard(updateBoard));
-      const modalEl = document.getElementById("closeBoardModal");
-      if (modalEl) {
-        const modalInstance = Modal.getInstance(modalEl) || new Modal(modalEl);
-
-        modalInstance.hide();
-
-        modalEl.addEventListener(
-          "hidden.bs.modal",
-          () => {
-            Modal.getInstance(modalEl)?.dispose();
-            document.body.classList.remove("modal-open");
-
-            const backdrop = document.querySelector(".modal-backdrop");
-            if (backdrop) backdrop.remove();
-          },
-          { once: true }
-        );
-      }
+      const cancelBtn = document.getElementById("btnCloseBoard");
+      cancelBtn?.click();
 
       navigate("/dashboard");
       localStorage.removeItem(CURR_BOARD);
@@ -285,17 +268,12 @@ export default function BoardDetail() {
     if (showCloseListModal) document.body.classList.add("modal-open");
     else document.body.classList.remove("modal-open");
   }, [showCloseListModal]);
+
   const handleDeleteList = async () => {
     if (!idListDel) return;
 
     try {
       await dispath(deleteList(idListDel));
-
-      const modalEl = document.getElementById("closeListModal");
-      if (modalEl) {
-        const modalInstance = Modal.getInstance(modalEl) || new Modal(modalEl);
-        modalInstance.hide();
-      }
 
       showToastSuccess("Xóa list thành công");
       dispath(getList());
@@ -317,11 +295,44 @@ export default function BoardDetail() {
       try {
         await dispath(updateTask(updatedTask));
         showToastSuccess("Thay đổi trạng thái thành công");
-        dispath(getList());
+        dispath(getTask());
       } catch (error) {
         console.error(error);
         showToastError("Lỗi thay đổi trạng thái");
       }
+    }
+  };
+
+  const [valueCkeditorData, setValueCkeditorData] = useState<string>("");
+  const [idTaskCurrent, setIdTaskCurrent] = useState<string | null>(null);
+
+  // edit task
+  const handleUpdateTask = async () => {
+    const selectedTask = tasks.find((el) => el.id === idTaskCurrent);
+    if (selectedTask) {
+      if (!valueCkeditorData.trim()) {
+        showToastError("Nội dung task không được để trống");
+        return;
+      }
+
+      const updatedTask: Task = {
+        ...selectedTask,
+        description: valueCkeditorData,
+      };
+
+      try {
+        await dispath(updateTask(updatedTask));
+        showToastSuccess("Chỉnh sửa task thành công");
+        dispath(getTask());
+
+        const cancelBtn = document.getElementById("btnCloseModalEditTask");
+        cancelBtn?.click();
+      } catch (error) {
+        console.error(error);
+        showToastError("Lỗi sửa task");
+      }
+    } else {
+      showToastError("Không tìm thấy task được chọn");
     }
   };
 
@@ -495,6 +506,10 @@ export default function BoardDetail() {
                             <span
                               data-bs-toggle="modal"
                               data-bs-target="#taskDetailModal"
+                              onClick={() => {
+                                setIdTaskCurrent(task.id);
+                                setValueCkeditorData(task.description);
+                              }}
                             >
                               {task.title}
                             </span>
@@ -768,37 +783,6 @@ export default function BoardDetail() {
           </div>
         </>
       )}
-      {/* {showCloseListModal && (
-        <div className="modal fade show" style={{ display: "block" }}>
-          <div className="modal-dialog modal-dialog-scrollable">
-            <div className="modal-content">
-              <div className="modal-header popular">
-                <img src={comfirmCloseIcon} alt="icon-confirm" />
-                <p className="question">Are you sure?</p>
-                <p className="remind">You won't be able to revert this!</p>
-
-                <div className="d-flex justify-content-center list-btn">
-                  <button
-                    className="btn my-btn-create"
-                    onClick={() => {
-                      handleDeleteList();
-                      setShowCloseListModal(false);
-                    }}
-                  >
-                    Yes, delete it!
-                  </button>
-                  <button
-                    className="btn my-btn-close"
-                    onClick={() => setShowCloseListModal(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
 
       {/* Modal Task Detail */}
       <div className="modal fade modal-lg" id="taskDetailModal" tabIndex={-1}>
@@ -808,7 +792,7 @@ export default function BoardDetail() {
               <div className="header-modal">
                 <div className="header-top">
                   <i className="fa-solid fa-circle-check" id="iconStatus" />
-                  <p id="taskDetailTitle">Kịch bản</p>
+                  <p>Kịch bản</p>
                 </div>
                 <div className="span-select">
                   <span>in list</span>
@@ -836,16 +820,21 @@ export default function BoardDetail() {
                       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                       // @ts-expect-error
                       editor={ClassicEditor}
-                      data="<p>Nội dung task</p>"
+                      data={valueCkeditorData}
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      onChange={(editor: any) => {
+                      onChange={(_event, editor: any) => {
                         const data = editor.getData();
-                        console.log("DATA:", data);
+                        setValueCkeditorData(data);
                       }}
                     />
                     <div className="btn-group">
-                      <button id="saveUpdateTask">Save</button>
-                      <button data-bs-dismiss="modal">Cancel</button>
+                      <button onClick={handleUpdateTask}>Save</button>
+                      <button
+                        data-bs-dismiss="modal"
+                        id="btnCloseModalEditTask"
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
                 </div>

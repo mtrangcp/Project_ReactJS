@@ -24,7 +24,7 @@
       "backdrop": "https://res.cloudinary.com/dttookk0w/image/upload/v1759961263/board-title3_wg30fo.jpg",
       "type": "image",
       "is_started": false,
-      "is_closed": true,
+      "is_closed": false,
       "created_at": "2025-10-09T00:51:07.882Z"
     },
     {
@@ -32,7 +32,7 @@
       "user_id": "ec57",
       "title": "tieu de 1",
       "description": "",
-      "backdrop": "https://res.cloudinary.com/dttookk0w/image/upload/v1759961268/board-title1_scivpc.jpg",
+      "backdrop": "https://res.cloudinary.com/dttookk0w/image/upload/v1759961263/board-title2_kxp8im.jpg",
       "type": "image",
       "is_started": false,
       "is_closed": false,
@@ -46,7 +46,7 @@
       "backdrop": "linear-gradient(123deg, #00ffe5 0%, #004bfa 100%)",
       "type": "color",
       "is_started": false,
-      "is_closed": true,
+      "is_closed": false,
       "created_at": "2025-10-09T00:54:49.809Z"
     },
     {
@@ -54,10 +54,10 @@
       "user_id": "ec57",
       "title": "lam du an react",
       "description": "",
-      "backdrop": "https://res.cloudinary.com/dttookk0w/image/upload/v1759961263/board-title2_kxp8im.jpg",
+      "backdrop": "https://res.cloudinary.com/dttookk0w/image/upload/v1759961263/board-title3_wg30fo.jpg",
       "type": "image",
       "is_started": true,
-      "is_closed": false,
+      "is_closed": true,
       "created_at": "2025-10-09T01:17:11.343Z"
     },
     {
@@ -97,7 +97,7 @@
       "id": "TASK_001",
       "list_id": "LIST_001",
       "title": "Thiết kế giao diện cho anc bs cusdjv  sduchisdd si iods",
-      "description": "Tạo giao diện cho các trang",
+      "description": "<p>demo 11111</p>",
       "status": false,
       "due_date": "2025-03-05T23:59:59Z",
       "created_at": "2025-02-28T12:30:00Z"
@@ -106,7 +106,7 @@
       "id": "TASK_002",
       "list_id": "LIST_001",
       "title": "Thiết kế chức năng",
-      "description": "Tạo chức năng cho các trang",
+      "description": "<p>demo 22222</p>",
       "status": true,
       "due_date": "2025-03-05T23:59:59Z",
       "created_at": "2025-02-28T12:30:00Z"
@@ -115,7 +115,7 @@
       "id": "TASK_003",
       "list_id": "LIST_003",
       "title": "Khảo sát",
-      "description": "Khảo sát yêu cầu người dùng",
+      "description": "<p>kịch bản demo</p>",
       "status": true,
       "due_date": "2025-03-05T23:59:59Z",
       "created_at": "2025-02-28T12:30:00Z"
@@ -126,7 +126,7 @@
       "title": "aaa",
       "status": false,
       "created_at": "2025-10-09T20:41:11.410Z",
-      "description": "",
+      "description": "<p>demo 33333</p>",
       "due_date": ""
     },
     {
