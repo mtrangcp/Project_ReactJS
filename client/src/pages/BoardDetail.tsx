@@ -40,7 +40,7 @@ import type { Board, List, Task } from "../utils/types";
 import { useNavigate } from "react-router-dom";
 import { showToastError, showToastSuccess } from "../utils/toast";
 import { addList, deleteList, getList, updateList } from "../slices/listSlice";
-import { addTask, getTask, updateTask } from "../slices/taskSlice";
+import { addTask, deleteTask, getTask, updateTask } from "../slices/taskSlice";
 
 export default function BoardDetail() {
   // control modal
@@ -273,6 +273,15 @@ export default function BoardDetail() {
     if (!idListDel) return;
 
     try {
+      const taskOfDeletedList: Task[] = tasks.filter(
+        (el) => el.list_id === idListDel
+      );
+      if (taskOfDeletedList) {
+        await Promise.all(
+          taskOfDeletedList.map((el) => dispath(deleteTask(el.id)))
+        );
+      }
+
       await dispath(deleteList(idListDel));
 
       showToastSuccess("Xóa list thành công");
@@ -282,6 +291,15 @@ export default function BoardDetail() {
       showToastError("Lỗi xóa list");
     }
   };
+
+  const [valueCkeditorData, setValueCkeditorData] = useState<string>("");
+  const [idTaskCurrent, setIdTaskCurrent] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  useEffect(() => {
+    setSelectedTask(tasks.find((el) => el.id === idTaskCurrent) || null);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idTaskCurrent]);
 
   // change status task
   const handleClickCircleStatus = async (id: string) => {
@@ -295,6 +313,7 @@ export default function BoardDetail() {
       try {
         await dispath(updateTask(updatedTask));
         showToastSuccess("Thay đổi trạng thái thành công");
+
         dispath(getTask());
       } catch (error) {
         console.error(error);
@@ -303,12 +322,30 @@ export default function BoardDetail() {
     }
   };
 
-  const [valueCkeditorData, setValueCkeditorData] = useState<string>("");
-  const [idTaskCurrent, setIdTaskCurrent] = useState<string | null>(null);
+  const handleClickCircleStatus2 = async (id: string) => {
+    const chosedTask = tasks.find((el) => el.id === id);
+    if (chosedTask) {
+      const updatedTask: Task = {
+        ...chosedTask,
+        status: !chosedTask.status,
+      };
+
+      setSelectedTask(updatedTask);
+
+      try {
+        await dispath(updateTask(updatedTask));
+        showToastSuccess("Thay đổi trạng thái thành công");
+
+        dispath(getTask());
+      } catch (error) {
+        console.error(error);
+        showToastError("Lỗi thay đổi trạng thái");
+      }
+    }
+  };
 
   // edit task
   const handleUpdateTask = async () => {
-    const selectedTask = tasks.find((el) => el.id === idTaskCurrent);
     if (selectedTask) {
       if (!valueCkeditorData.trim()) {
         showToastError("Nội dung task không được để trống");
@@ -333,6 +370,46 @@ export default function BoardDetail() {
       }
     } else {
       showToastError("Không tìm thấy task được chọn");
+    }
+  };
+
+  // delete task
+  const handleDeleteTask = async () => {
+    try {
+      await dispath(deleteTask(selectedTask!.id));
+
+      showToastSuccess("Xóa task thành công");
+      dispath(getTask());
+
+      const btnCloseModalDel = document.getElementById("btnCloseModalDelCard");
+      btnCloseModalDel?.click();
+      const cancelBtn = document.getElementById("btnCloseModalEditTask");
+      cancelBtn?.click();
+    } catch (error) {
+      console.error(error);
+      showToastError("Lỗi xóa task");
+    }
+  };
+
+  // move task
+  const [idListToMove, setIdListToMove] = useState<string>("");
+  const handleMoveTask = async () => {
+    if (!idListToMove) return;
+
+    const updatedTask: Task = {
+      ...selectedTask!,
+      list_id: idListToMove,
+    };
+    try {
+      await dispath(updateTask(updatedTask));
+      showToastSuccess("Chuyển task thành công");
+      dispath(getTask());
+
+      const btnCloseMove = document.getElementById("btnCloseMove");
+      btnCloseMove?.click();
+    } catch (error) {
+      console.error(error);
+      showToastError("Lỗi xóa task");
     }
   };
 
@@ -497,7 +574,6 @@ export default function BoardDetail() {
                         return (
                           <div key={task.id} className="one-item">
                             <i
-                              id="statusTask"
                               className={`fa-solid fa-circle-check  ${
                                 task.status ? "check-active" : ""
                               }`}
@@ -791,19 +867,23 @@ export default function BoardDetail() {
             <div className="modal-header popular">
               <div className="header-modal">
                 <div className="header-top">
-                  <i className="fa-solid fa-circle-check" id="iconStatus" />
-                  <p>Kịch bản</p>
+                  <i
+                    className={`fa-solid fa-circle-check  ${
+                      selectedTask?.status ? "check-active" : ""
+                    }`}
+                    onClick={() => handleClickCircleStatus2(selectedTask!.id)}
+                  />
+                  <p>{selectedTask?.title}</p>
                 </div>
                 <div className="span-select">
                   <span>in list</span>
                   <div
                     className="select"
-                    id="status-task"
                     data-bs-toggle="modal"
                     data-bs-target="#moveDropdownModal"
                     // onclick="openMoveDropdownModal()"
                   >
-                    In-progress
+                    {lists.find((el) => el.id === selectedTask?.list_id)?.title}
                   </div>
                 </div>
               </div>
@@ -889,23 +969,42 @@ export default function BoardDetail() {
                 Move card
               </h1>
               <button
-                type="button"
+                id="btnCloseMove"
                 className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
+                onClick={() =>
+                  document.getElementById("btnCloseModalEditTask")?.click()
+                }
               />
             </div>
             <div className="modal-body">
               <p>Select destination</p>
               <div className="boards">
                 <h3>Board</h3>
-                <input type="text" id="titleBoardOfTask" disabled={false} />
+                <input
+                  type="text"
+                  id="titleBoardOfTask"
+                  disabled={true}
+                  value={boardCurrent.title}
+                />
               </div>
               <div className="list-po">
                 <div className="list">
                   <h3>List</h3>
-                  <select id="listSelect">
-                    <option value="In-progress">In-progress</option>
+                  <select
+                    id="listSelect"
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setIdListToMove(e.target.value)
+                    }
+                  >
+                    {listsOfBoardCurr.map((el) => {
+                      return (
+                        <option value={el.id} key={el.id}>
+                          {el.title}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
                 <div className="position">
@@ -919,7 +1018,7 @@ export default function BoardDetail() {
             <div className="modal-footer">
               <button
                 type="button"
-                id="moveTaskBtn"
+                onClick={handleMoveTask}
                 className="btn btn-primary me-auto"
               >
                 Move
@@ -1305,16 +1404,20 @@ export default function BoardDetail() {
               <p className="remind">You won't be able to revert this!</p>
               <div className="d-flex justify-content-center list-btn">
                 <button
-                  id="btnConfirmDelCard"
+                  onClick={handleDeleteTask}
                   type="button"
                   className="btn my-btn-create"
                 >
                   Yes, delete it!
                 </button>
                 <button
+                  id="btnCloseModalDelCard"
                   type="button"
                   className="btn my-btn-close"
                   data-bs-dismiss="modal"
+                  onClick={() =>
+                    document.getElementById("btnCloseModalEditTask")?.click()
+                  }
                 >
                   Cancel
                 </button>
