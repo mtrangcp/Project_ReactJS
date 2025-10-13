@@ -1,6 +1,7 @@
 import "../css/GeneralStyle.css";
 import "../css/BoardDetail.css";
 
+import * as bootstrap from "bootstrap";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import flatpickr from "flatpickr";
@@ -66,7 +67,9 @@ export default function BoardDetail() {
   const dispath = useDispatch<AppDispath>();
   const navigate = useNavigate();
 
-  const idBoardCurrent = localStorage.getItem(CURR_BOARD);
+  const [idBoardCurrent, setIdBoardCurrent] = useState(
+    localStorage.getItem(CURR_BOARD)
+  );
   const idUserLocal = localStorage.getItem(KEY_LOCAL);
   const listBoards = dashboards.filter((el) => el.user_id === idUserLocal);
 
@@ -171,18 +174,27 @@ export default function BoardDetail() {
   };
 
   // khởi tạo Flatpickr
+  const [startDate, setStartDate] = useState<string>("");
+  const [dueDate, setDueDate] = useState<string>("");
   useEffect(() => {
     if (calendarRef.current) {
       const fp = flatpickr(calendarRef.current, {
         inline: true,
         enableTime: true,
-        dateFormat: "Y-m-d\\TH:i:s\\Z",
+        dateFormat: "Z",
         onChange: function (_selectedDates, dateStr) {
+          console.log("Date string from flatpickr:", dateStr);
           if (selectedInput) {
             const inputEl =
               document.querySelector<HTMLInputElement>(selectedInput);
             if (inputEl) {
               inputEl.value = dateStr;
+            }
+
+            if (selectedInput === "#start-date") {
+              setStartDate(dateStr);
+            } else if (selectedInput === "#due-date") {
+              setDueDate(dateStr);
             }
           }
         },
@@ -195,10 +207,21 @@ export default function BoardDetail() {
   }, [selectedInput]);
 
   const saveDateValues = () => {
-    console.log("Save clicked");
+    const start = new Date(startDate);
+    const due = new Date(dueDate);
+
+    console.log(start);
+    console.log(due);
+
+    if (start < due) {
+      showToastSuccess("Start date và Due date đúng");
+    } else {
+      showToastError("Start date phải nhỏ hơn Due date");
+    }
   };
   const removeDateValues = () => {
     console.log("Remove clicked");
+    document.getElementById("btnCloseModalEditTask")?.click();
   };
 
   // add list
@@ -345,6 +368,7 @@ export default function BoardDetail() {
   };
 
   // edit task
+
   const handleUpdateTask = async () => {
     if (selectedTask) {
       if (!valueCkeditorData.trim()) {
@@ -355,6 +379,8 @@ export default function BoardDetail() {
       const updatedTask: Task = {
         ...selectedTask,
         description: valueCkeditorData,
+        created_at: startDate,
+        due_date: dueDate,
       };
 
       try {
@@ -462,8 +488,12 @@ export default function BoardDetail() {
                     <div
                       key={board.id}
                       className={`item ${
-                        boardCurrent.id === board.id ? "clicked-item" : ""
+                        idBoardCurrent === board.id ? "clicked-item" : ""
                       }`}
+                      onClick={() => {
+                        localStorage.setItem(CURR_BOARD, board.id);
+                        setIdBoardCurrent(board.id);
+                      }}
                     >
                       <div
                         className="img"
@@ -935,6 +965,9 @@ export default function BoardDetail() {
                     className="labels"
                     data-bs-toggle="modal"
                     data-bs-target="#dateModal"
+                    onClick={() =>
+                      document.getElementById("btnCloseModalEditTask")?.click()
+                    }
                   >
                     <img src={dateIcon} alt="date" />
                     <span>Dates</span>
@@ -1046,7 +1079,9 @@ export default function BoardDetail() {
                 Label
               </h5>
               <button
-                type="button"
+                onClick={() =>
+                  document.getElementById("btnCloseModalEditTask")?.click()
+                }
                 className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
@@ -1330,7 +1365,13 @@ export default function BoardDetail() {
                 Dates
               </h5>
               <button
-                type="button"
+                onClick={() => {
+                  const modal1 = document.getElementById("taskDetailModal");
+                  if (modal1) {
+                    const modal = new bootstrap.Modal(modal1);
+                    modal.show();
+                  }
+                }}
                 className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
@@ -1338,7 +1379,6 @@ export default function BoardDetail() {
             </div>
 
             <div className="modal-body">
-              {/* Khu vực hiển thị lịch:  ref thay  id */}
               <div ref={calendarRef}></div>
 
               <label style={{ marginTop: 25 }}>
@@ -1353,7 +1393,10 @@ export default function BoardDetail() {
                 type="text"
                 id="start-date"
                 className="form-control"
-                readOnly
+                defaultValue={selectedTask?.created_at || ""}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setStartDate(e.target.value)
+                }
               />
 
               <label>
@@ -1361,14 +1404,17 @@ export default function BoardDetail() {
                   type="checkbox"
                   checked={isDueChecked}
                   onChange={() => handleCheckboxChange("due")}
-                />{" "}
+                  defaultValue={""}
+                />
                 Due date
               </label>
               <input
                 type="text"
                 id="due-date"
                 className="form-control"
-                readOnly
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setDueDate(e.target.value)
+                }
               />
             </div>
 
@@ -1377,12 +1423,10 @@ export default function BoardDetail() {
                 type="button"
                 className="btn btn-primary"
                 onClick={saveDateValues}
-                data-bs-dismiss="modal"
               >
                 Save
               </button>
               <button
-                type="button"
                 className="btn btn-primary"
                 onClick={removeDateValues}
                 data-bs-dismiss="modal"

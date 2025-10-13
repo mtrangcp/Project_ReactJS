@@ -64,6 +64,7 @@
 
 .your-boards .list-your-boards .item:hover {
   background-color: rgba(0, 0, 0, 0.16);
+  cursor: pointer;
 }
 
 .list-your-boards .item .img {
