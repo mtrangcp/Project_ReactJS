@@ -102,28 +102,28 @@
     {
       "id": "TASK_001",
       "list_id": "6e65874e-c5ba-4f9a-b35f-6204a2d4c893",
-      "title": "Thiết kế giao diện cho anc bs cusdjv  sduchisdd si iods",
-      "description": "<p>demo 11111</p>",
+      "title": "Thiết kế giao diện",
+      "description": "<p>demo 222222fdbgf</p>",
       "status": true,
-      "due_date": "2025-10-17T16:00:00.000Z",
-      "created_at": "2025-10-14T05:00:00.000Z"
+      "due_date": "",
+      "created_at": ""
     },
     {
       "id": "TASK_002",
       "list_id": "LIST_001",
-      "title": "Thiết kế chức năng",
+      "title": "Thiết kế chức năng jkswehfngcdksvlodulk3jred",
       "description": "<p>demo 22222</p>",
       "status": false,
-      "due_date": "2025-03-05T23:59:59Z",
-      "created_at": "2025-02-28T12:30:00Z"
+      "due_date": "",
+      "created_at": ""
     },
     {
       "id": "6ceaff14-7644-4932-903e-36a9f85196fc",
       "list_id": "LIST_001",
-      "title": "xây dựng giao diện",
+      "title": "xây dựng giao diện123",
       "status": false,
-      "created_at": "2025-10-12T21:29:37.193Z",
-      "description": "",
+      "created_at": "",
+      "description": "<p>xs</p>",
       "due_date": ""
     }
   ],

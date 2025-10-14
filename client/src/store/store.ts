@@ -3,6 +3,7 @@ import userSlice from "../slices/registerSlice";
 import dashboardSlice from "../slices/dashboardSlice";
 import listSlice from "../slices/listSlice";
 import taskSlice from "../slices/taskSlice";
+import tagSlice from "../slices/tagSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     boards: dashboardSlice,
     lists: listSlice,
     tasks: taskSlice,
+    tags: tagSlice,
   },
 });
 

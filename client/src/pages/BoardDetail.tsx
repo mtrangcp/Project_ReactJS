@@ -46,6 +46,34 @@ import { addTask, deleteTask, getTask, updateTask } from "../slices/taskSlice";
 export default function BoardDetail() {
   // control modal
   // handle add list
+  const [showEditTitleList, setShowEditTitleList] = useState<boolean>(true);
+  const [showInputEditlist, setShowInputEditlist] = useState<boolean>(false);
+  const [valueInputEditlist, setValueInputEditlist] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setShowInputEditlist(false);
+        setShowEditTitleList(true);
+      }
+    }
+
+    if (showInputEditlist) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showInputEditlist]);
+
+  //
   const [showTitleAddList, setShowTitleAddList] = useState<boolean>(true);
   const [showAddList, setShowAddList] = useState<boolean>(false);
   const [valueInputAddList, setValueInputAddList] = useState<string>("");
@@ -213,8 +241,14 @@ export default function BoardDetail() {
     console.log(start);
     console.log(due);
 
+    if (!start && !due) {
+      showToastError("Start date và Due date không được trống");
+      return;
+    }
+
     if (start < due) {
       showToastSuccess("Start date và Due date đúng");
+      document.getElementById("btnCloseModalDate")?.click();
     } else {
       showToastError("Start date phải nhỏ hơn Due date");
     }
@@ -368,7 +402,6 @@ export default function BoardDetail() {
   };
 
   // edit task
-
   const handleUpdateTask = async () => {
     if (selectedTask) {
       if (!valueCkeditorData.trim()) {
@@ -378,6 +411,7 @@ export default function BoardDetail() {
 
       const updatedTask: Task = {
         ...selectedTask,
+        title: valueInputEditlist || selectedTask.title,
         description: valueCkeditorData,
         created_at: startDate,
         due_date: dueDate,
@@ -903,7 +937,39 @@ export default function BoardDetail() {
                     }`}
                     onClick={() => handleClickCircleStatus2(selectedTask!.id)}
                   />
-                  <p>{selectedTask?.title}</p>
+                  {showEditTitleList && (
+                    <p
+                      onClick={() => {
+                        setShowEditTitleList(false);
+                        setShowInputEditlist(true);
+                      }}
+                    >
+                      {valueInputEditlist
+                        ? valueInputEditlist
+                        : selectedTask?.title}
+                    </p>
+                  )}
+                  {showInputEditlist && (
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      defaultValue={selectedTask?.title}
+                      id="inputEditTitle"
+                      onChange={(e) => {
+                        setValueInputEditlist(e.target.value);
+                      }}
+                      onBlur={() => {
+                        setShowInputEditlist(false);
+                        setShowEditTitleList(true);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          setShowInputEditlist(false);
+                          setShowEditTitleList(true);
+                        }
+                      }}
+                    />
+                  )}
                 </div>
                 <div className="span-select">
                   <span>in list</span>
@@ -911,7 +977,6 @@ export default function BoardDetail() {
                     className="select"
                     data-bs-toggle="modal"
                     data-bs-target="#moveDropdownModal"
-                    // onclick="openMoveDropdownModal()"
                   >
                     {lists.find((el) => el.id === selectedTask?.list_id)?.title}
                   </div>
@@ -950,17 +1015,18 @@ export default function BoardDetail() {
                 </div>
 
                 <div className="aside-modal">
-                  {/* onclick="openEditLabelModal()" */}
                   <div
                     className="labels"
                     data-bs-toggle="modal"
                     data-bs-target="#editLabelModal"
+                    onClick={() =>
+                      document.getElementById("btnCloseModalEditTask")?.click()
+                    }
                   >
                     <img src={labelsIcon} alt="labels" />
                     <span>Labels</span>
                   </div>
 
-                  {/* onclick="openDateModal()" */}
                   <div
                     className="labels"
                     data-bs-toggle="modal"
@@ -1375,6 +1441,7 @@ export default function BoardDetail() {
                 className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
+                id="btnCloseModalDate"
               />
             </div>
 
@@ -1404,7 +1471,7 @@ export default function BoardDetail() {
                   type="checkbox"
                   checked={isDueChecked}
                   onChange={() => handleCheckboxChange("due")}
-                  defaultValue={""}
+                  defaultValue={selectedTask?.due_date || ""}
                 />
                 Due date
               </label>

@@ -616,6 +616,18 @@
   margin: 0;
 }
 
+.header-top #inputEditTitle {
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid gray;
+  padding: 3px 10px;
+  outline: none;
+}
+
+.header-top #inputEditTitle:hover {
+  border: 2px solid gray;
+}
+
 .popular .header-modal .span-select {
   display: flex;
   gap: 4px;
