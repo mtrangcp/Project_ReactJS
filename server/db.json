@@ -105,8 +105,8 @@
       "title": "Thiết kế giao diện",
       "description": "<p>demo 222222fdbgf</p>",
       "status": true,
-      "due_date": "",
-      "created_at": ""
+      "due_date": "2025-10-16T16:00:00.000Z",
+      "created_at": "2025-10-15T05:00:00.000Z"
     },
     {
       "id": "TASK_002",
@@ -114,8 +114,8 @@
       "title": "Thiết kế chức năng jkswehfngcdksvlodulk3jred",
       "description": "<p>demo 22222</p>",
       "status": false,
-      "due_date": "",
-      "created_at": ""
+      "due_date": "2025-10-04T05:00:00.000Z",
+      "created_at": "2025-10-01T05:00:00.000Z"
     },
     {
       "id": "6ceaff14-7644-4932-903e-36a9f85196fc",
@@ -125,6 +125,15 @@
       "created_at": "",
       "description": "<p>xs</p>",
       "due_date": ""
+    },
+    {
+      "id": "a6d711fe-628c-48e2-8e84-4101d938051b",
+      "list_id": "cb3a9804-8b9d-4008-8a1b-27f6c93994b5",
+      "title": "lấy yêu cầu",
+      "status": false,
+      "created_at": "2025-10-15T05:00:00.000Z",
+      "description": "<p>abc</p>",
+      "due_date": "2025-10-16T05:00:00.000Z"
     }
   ],
   "tags": [

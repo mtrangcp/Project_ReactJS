@@ -356,9 +356,70 @@ export default function BoardDetail() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   useEffect(() => {
     setSelectedTask(tasks.find((el) => el.id === idTaskCurrent) || null);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idTaskCurrent]);
+
+  // filter
+  const [filterKeyword, setFilterKeyword] = useState("");
+  const [filterComplete, setFilterComplete] = useState(false);
+  const [filterPending, setFilterPending] = useState(false);
+  const [filteredTasks, setFilteredTasks] = useState<Task[]>(tasks);
+  const [filterDue, setFilterDue] = useState({
+    noDate: false,
+    overdue: false,
+    nextDay: false,
+  });
+
+  useEffect(() => {
+    const today = new Date();
+    let newTasks = [...tasks];
+
+    if (filterKeyword.trim() !== "") {
+      newTasks = newTasks.filter((task) =>
+        task.title.toLowerCase().includes(filterKeyword.toLowerCase())
+      );
+    }
+
+    if (filterComplete && !filterPending) {
+      newTasks = newTasks.filter((task) => task.status === true);
+    } else if (filterPending && !filterComplete) {
+      newTasks = newTasks.filter((task) => task.status === false);
+    }
+
+    newTasks = newTasks.filter((task) => {
+      const hasDueDate = task.due_date && task.due_date.trim() !== "";
+      const taskDueDate = hasDueDate ? new Date(task.due_date) : null;
+
+      const startOfToday = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
+      const startOfTomorrow = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + 1
+      );
+      const startOfNextNextDay = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + 2
+      );
+
+      if (filterDue.noDate && hasDueDate) return false;
+      if (filterDue.overdue && (!taskDueDate || taskDueDate >= startOfToday))
+        return false;
+      if (filterDue.nextDay) {
+        if (!taskDueDate) return false;
+        if (taskDueDate < startOfTomorrow || taskDueDate >= startOfNextNextDay)
+          return false;
+      }
+
+      return true;
+    });
+
+    setFilteredTasks(newTasks);
+  }, [tasks, filterKeyword, filterComplete, filterPending, filterDue]);
 
   // change status task
   const handleClickCircleStatus = async (id: string) => {
@@ -660,7 +721,7 @@ export default function BoardDetail() {
                   </div>
 
                   <div className="list-item" id="list-item-task">
-                    {tasks
+                    {filteredTasks
                       .filter((task) => task.list_id === list.id)
                       .map((task: Task) => {
                         return (
@@ -799,7 +860,13 @@ export default function BoardDetail() {
             <div className="modal-body">
               <div className="keyboard">
                 <p className="title">Keyword</p>
-                <input type="text" placeholder="Enter a keyword…" />
+                <input
+                  type="text"
+                  placeholder="Enter a keyword…"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setFilterKeyword(e.target.value)
+                  }
+                />
                 <p className="p-normal">Search cards,</p>
               </div>
               <div className="keyboard">
@@ -808,6 +875,7 @@ export default function BoardDetail() {
                   <input
                     type="checkbox"
                     className="filter-checkbox status-complete"
+                    onChange={(e) => setFilterComplete(e.target.checked)}
                   />
                   <span>Marked as complete</span>
                 </div>
@@ -815,19 +883,39 @@ export default function BoardDetail() {
                   <input
                     type="checkbox"
                     className="filter-checkbox status-pending"
+                    onChange={(e) => setFilterPending(e.target.checked)}
                   />
                   <span>Not marked as complete</span>
                 </div>
               </div>
+
               <div className="keyboard">
                 <p className="title">Due date</p>
                 <div className="item-status">
-                  <input type="checkbox" className="filter-checkbox no-dates" />
+                  <input
+                    type="checkbox"
+                    className="filter-checkbox no-dates"
+                    onChange={(e) =>
+                      setFilterDue((prev) => ({
+                        ...prev,
+                        noDate: e.target.checked,
+                      }))
+                    }
+                  />
                   <img src={filterDate} alt="filter date" />
                   <span>No dates</span>
                 </div>
                 <div className="item-status">
-                  <input type="checkbox" className="filter-checkbox overdue" />
+                  <input
+                    type="checkbox"
+                    className="filter-checkbox overdue"
+                    onChange={(e) =>
+                      setFilterDue((prev) => ({
+                        ...prev,
+                        overdue: e.target.checked,
+                      }))
+                    }
+                  />
                   <img src={overDueDate} alt="over-dueDate" />
                   <span>Overdue</span>
                 </div>
@@ -835,11 +923,18 @@ export default function BoardDetail() {
                   <input
                     type="checkbox"
                     className="filter-checkbox due-next-day"
+                    onChange={(e) =>
+                      setFilterDue((prev) => ({
+                        ...prev,
+                        nextDay: e.target.checked,
+                      }))
+                    }
                   />
                   <img src={dueNextDay} alt="due-nextDay" />
                   <span>Due in the next day</span>
                 </div>
               </div>
+
               <div className="keyboard">
                 <p className="title">Labels</p>
                 <div className="item-status">
@@ -1193,7 +1288,7 @@ export default function BoardDetail() {
               <div className="listLabels">
                 {tags.map((el) => {
                   return (
-                    <div className="itemLabel">
+                    <div className="itemLabel" key={el.id}>
                       <input type="checkbox" />
                       <div
                         className="colorLabel"
