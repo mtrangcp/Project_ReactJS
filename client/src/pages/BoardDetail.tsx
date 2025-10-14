@@ -42,9 +42,9 @@ import { useNavigate } from "react-router-dom";
 import { showToastError, showToastSuccess } from "../utils/toast";
 import { addList, deleteList, getList, updateList } from "../slices/listSlice";
 import { addTask, deleteTask, getTask, updateTask } from "../slices/taskSlice";
+import { getTag } from "../slices/tagSlice";
 
 export default function BoardDetail() {
-  // control modal
   // handle add list
   const [showEditTitleList, setShowEditTitleList] = useState<boolean>(true);
   const [showInputEditlist, setShowInputEditlist] = useState<boolean>(false);
@@ -73,7 +73,6 @@ export default function BoardDetail() {
     };
   }, [showInputEditlist]);
 
-  //
   const [showTitleAddList, setShowTitleAddList] = useState<boolean>(true);
   const [showAddList, setShowAddList] = useState<boolean>(false);
   const [valueInputAddList, setValueInputAddList] = useState<string>("");
@@ -92,6 +91,7 @@ export default function BoardDetail() {
   const { dashboards } = useSelector((state: RootState) => state.boards);
   const { lists } = useSelector((state: RootState) => state.lists);
   const { tasks } = useSelector((state: RootState) => state.tasks);
+  const { tags } = useSelector((state: RootState) => state.tags);
   const dispath = useDispatch<AppDispath>();
   const navigate = useNavigate();
 
@@ -105,6 +105,7 @@ export default function BoardDetail() {
     dispath(getDashboard());
     dispath(getList());
     dispath(getTask());
+    dispath(getTag());
   }, [dispath]);
 
   const boardCurrent = dashboards.find(
@@ -1022,6 +1023,7 @@ export default function BoardDetail() {
                     onClick={() =>
                       document.getElementById("btnCloseModalEditTask")?.click()
                     }
+                    id="showModaListLabel"
                   >
                     <img src={labelsIcon} alt="labels" />
                     <span>Labels</span>
@@ -1145,56 +1147,68 @@ export default function BoardDetail() {
                 Label
               </h5>
               <button
-                onClick={() =>
-                  document.getElementById("btnCloseModalEditTask")?.click()
-                }
+                onClick={() => {
+                  const modal1 = document.getElementById("taskDetailModal");
+                  if (modal1) {
+                    const modal = new bootstrap.Modal(modal1);
+                    modal.show();
+                  }
+                }}
                 className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
+                id="btnCloseModalListLabel"
               />
             </div>
 
             <div className="modal-body">
               <p>Labels</p>
               <div className="listLabels">
-                <div className="itemLabel">
-                  <input type="checkbox" />
-                  <div className="colorLabel color-green">done</div>
-                  <img
-                    src={penEdit}
-                    alt="edit"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editAndDelLabelModal"
-                  />
-                </div>
-
-                <div className="itemLabel">
-                  <input type="checkbox" />
-                  <div className="colorLabel color-orange">urgent</div>
-                  <img src={penEdit} alt="edit" />
-                </div>
-
-                <div className="itemLabel">
-                  <input type="checkbox" />
-                  <div className="colorLabel color-red">todo</div>
-                  <img src={penEdit} alt="edit" />
-                </div>
-
-                <div className="itemLabel">
-                  <input type="checkbox" />
-                  <div className="colorLabel color-violet">in-progress</div>
-                  <img src={penEdit} alt="edit" />
-                </div>
+                {tags.map((el) => {
+                  return (
+                    <div className="itemLabel">
+                      <input type="checkbox" />
+                      <div
+                        className="colorLabel"
+                        style={{ backgroundColor: `${el.color}` }}
+                      >
+                        {el.content}
+                      </div>
+                      <img
+                        src={penEdit}
+                        alt="edit"
+                        id="openEditLabelModal"
+                        onClick={() => {
+                          const modal1 = document.getElementById(
+                            "editAndDelLabelModal"
+                          );
+                          if (modal1) {
+                            const modal = new bootstrap.Modal(modal1);
+                            modal.show();
+                          }
+                        }}
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             <div className="modal-footer">
               <button
-                type="button"
                 className="btn btn-primary"
                 id="openCreateLabelModal"
-                data-bs-toggle="modal"
-                data-bs-target="#labelModal"
+                onClick={() => {
+                  const modal1 = document.getElementById("labelModal");
+                  if (modal1) {
+                    const modal = new bootstrap.Modal(modal1);
+                    modal.show();
+                  }
+                }}
+                data-bs-dismiss="modal"
+                aria-label="Close"
               >
                 Create a new label
               </button>
@@ -1216,15 +1230,18 @@ export default function BoardDetail() {
             <div className="modal-header">
               <img
                 src={btnBlack}
-                alt="back-btn"
-                data-bs-toggle="modal"
-                data-bs-target="#editLabelModal"
+                onClick={() =>
+                  document.getElementById("showModaListLabel")?.click()
+                }
+                data-bs-dismiss="modal"
               />
               <h5 className="modal-title" id="labelModalLabel">
                 Create label
               </h5>
               <button
-                type="button"
+                onClick={() =>
+                  document.getElementById("showModaListLabel")?.click()
+                }
                 className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
@@ -1296,9 +1313,11 @@ export default function BoardDetail() {
                 Create
               </button>
               <button
-                type="button"
-                className="btn btn-secondary"
+                onClick={() =>
+                  document.getElementById("showModaListLabel")?.click()
+                }
                 data-bs-dismiss="modal"
+                className="btn btn-secondary"
               >
                 Close
               </button>
@@ -1321,17 +1340,22 @@ export default function BoardDetail() {
               <img
                 src={btnBlack}
                 alt="back-btn"
-                data-bs-toggle="modal"
-                data-bs-target="#editLabelModal"
+                onClick={() =>
+                  document.getElementById("showModaListLabel")?.click()
+                }
+                data-bs-dismiss="modal"
+                aria-label="Close"
               />
               <h5 className="modal-title" id="labelModalLabel">
                 Edit label
               </h5>
               <button
-                type="button"
-                className="btn-close"
+                onClick={() =>
+                  document.getElementById("showModaListLabel")?.click()
+                }
                 data-bs-dismiss="modal"
                 aria-label="Close"
+                className="btn-close"
               />
             </div>
 

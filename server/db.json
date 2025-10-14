@@ -121,7 +121,7 @@
       "id": "6ceaff14-7644-4932-903e-36a9f85196fc",
       "list_id": "LIST_001",
       "title": "xây dựng giao diện123",
-      "status": false,
+      "status": true,
       "created_at": "",
       "description": "<p>xs</p>",
       "due_date": ""
@@ -130,9 +130,27 @@
   "tags": [
     {
       "id": "TAG_001",
-      "task_id": "TASK_001",
-      "content": "Urgent",
-      "color": "#fff"
+      "task_id": "",
+      "content": "urgent",
+      "color": "#fea362"
+    },
+    {
+      "id": "TAG_002",
+      "task_id": "",
+      "content": "done",
+      "color": "#4bce97"
+    },
+    {
+      "id": "TAG_003",
+      "task_id": "",
+      "content": "todo",
+      "color": "#f87168"
+    },
+    {
+      "id": "TAG_004",
+      "task_id": "",
+      "content": "in-progress",
+      "color": "#9f8fef"
     }
   ]
 }
