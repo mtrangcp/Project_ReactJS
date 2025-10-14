@@ -37,12 +37,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDashboard, updateDashboard } from "../slices/dashboardSlice";
 import type { AppDispath, RootState } from "../store/store";
-import type { Board, List, Task } from "../utils/types";
+import type { Board, List, Tag, Task } from "../utils/types";
 import { useNavigate } from "react-router-dom";
 import { showToastError, showToastSuccess } from "../utils/toast";
 import { addList, deleteList, getList, updateList } from "../slices/listSlice";
 import { addTask, deleteTask, getTask, updateTask } from "../slices/taskSlice";
-import { getTag } from "../slices/tagSlice";
+import { addTag, getTag } from "../slices/tagSlice";
+import { colorTags } from "../utils/backgrounds";
 
 export default function BoardDetail() {
   // handle add list
@@ -471,6 +472,32 @@ export default function BoardDetail() {
     } catch (error) {
       console.error(error);
       showToastError("Lỗi xóa task");
+    }
+  };
+
+  // add Tag
+  const [valueInputAddTag, setValueInputAddTag] = useState<string>("");
+  const handleAddTag = async () => {
+    if (!valueInputAddTag.trim()) {
+      showToastError("Tiêu đề Tag không được trống");
+      return;
+    }
+
+    const newTag: Tag = {
+      id: uuidv4(),
+      content: valueInputAddTag.trim(),
+      task_id: "",
+      color: "",
+    };
+
+    try {
+      await dispath(addTag(newTag));
+
+      showToastSuccess("Thêm Tag thành công");
+      dispath(getTag());
+    } catch (error) {
+      console.error(error);
+      showToastError("Lỗi thêm tag");
     }
   };
 
@@ -1254,52 +1281,24 @@ export default function BoardDetail() {
                 <input
                   type="text"
                   className="form-control"
-                  id="labelTitleInput"
+                  id="inputAddTag"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setValueInputAddTag(e.target.value)
+                  }
                 />
               </div>
               <div className="mb-3">
                 <label className="form-label">Select a color</label>
                 <div className="d-flex flex-wrap gap-2">
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#baf3db" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#f8e6a0" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#fedec8" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#ffd5d2" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#dfd8fd" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#4bce97" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#f5cd47" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#fea362" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#f87168" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#9f8fef" }}
-                  />
+                  {colorTags.map((el) => {
+                    return (
+                      <span
+                        key={el}
+                        className="color-option"
+                        style={{ backgroundColor: el }}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -1309,6 +1308,7 @@ export default function BoardDetail() {
                 type="button"
                 className="btn btn-primary"
                 id="createLabelBtn"
+                onClick={handleAddTag}
               >
                 Create
               </button>
@@ -1372,60 +1372,24 @@ export default function BoardDetail() {
               <div className="mb-3">
                 <label className="form-label">Select a color</label>
                 <div className="d-flex flex-wrap gap-2">
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#baf3db" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#f8e6a0" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#fedec8" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#ffd5d2" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#dfd8fd" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#4bce97" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#f5cd47" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#fea362" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#f87168" }}
-                  />
-                  <span
-                    className="color-option"
-                    style={{ backgroundColor: "#9f8fef" }}
-                  />
+                  {colorTags.map((el) => {
+                    return (
+                      <span
+                        key={el}
+                        className="color-option"
+                        style={{ backgroundColor: el }}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </div>
 
             <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-primary"
-                id="saveEditLabelBtn"
-              >
+              <button className="btn btn-primary" id="saveEditLabelBtn">
                 Save
               </button>
               <button
-                type="button"
                 className="btn btn-secondary"
                 id="delLabelBtn"
                 data-bs-dismiss="modal"

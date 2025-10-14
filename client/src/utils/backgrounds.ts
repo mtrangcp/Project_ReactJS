@@ -13,3 +13,16 @@ export const colorBackgrounds: string[] = [
   "linear-gradient(123deg, #ffa200 0%, #edfa00 100%)",
   "linear-gradient(123deg, #ff00ea 0%, #fa0c00 100%)",
 ];
+
+export const colorTags: string[] = [
+  "#baf3db",
+  "#f8e6a0",
+  "#fedec8",
+  "#ffd5d2",
+  "#dfd8fd",
+  "#4bce97",
+  "#f5cd47",
+  "#fea362",
+  "#f87168",
+  "#9f8fef",
+];
