@@ -369,6 +369,10 @@ export default function BoardDetail() {
     overdue: false,
     nextDay: false,
   });
+  const [filterTags, setFilterTags] = useState({
+    noLabel: false,
+    selected: [] as string[], // chứa id của tag được chọn
+  });
 
   useEffect(() => {
     const today = new Date();
@@ -418,8 +422,31 @@ export default function BoardDetail() {
       return true;
     });
 
+    if (filterTags && (filterTags.noLabel || filterTags.selected.length > 0)) {
+      newTasks = newTasks.filter((task) => {
+        const tagsOfTask = tags.filter((tag) => tag.task_id.includes(task.id));
+
+        if (filterTags.noLabel && tagsOfTask.length === 0) return true;
+
+        // Nếu chọn tag cụ thể
+        if (filterTags.selected.length > 0) {
+          return tagsOfTask.some((tag) => filterTags.selected.includes(tag.id));
+        }
+
+        return false;
+      });
+    }
+
     setFilteredTasks(newTasks);
-  }, [tasks, filterKeyword, filterComplete, filterPending, filterDue]);
+  }, [
+    tasks,
+    filterKeyword,
+    filterComplete,
+    filterPending,
+    filterDue,
+    filterTags,
+    tags,
+  ]);
 
   // change status task
   const handleClickCircleStatus = async (id: string) => {
@@ -543,6 +570,7 @@ export default function BoardDetail() {
   const [tagSelectedToEdit, setTagSelectedToEdit] = useState<Tag>();
   const [valueInputEditTag, setValueInputEditTag] = useState<string>("");
   const [valueColorEditTag, setValueColorEditTag] = useState<string>("");
+
   const handleAddTag = async () => {
     if (!valueInputAddTag.trim()) {
       showToastError("Tiêu đề Tag không được trống");
@@ -556,7 +584,7 @@ export default function BoardDetail() {
     const newTag: Tag = {
       id: uuidv4(),
       content: valueInputAddTag.trim(),
-      task_id: "",
+      task_id: [],
       color: valueColorAddTag,
     };
 
@@ -598,6 +626,62 @@ export default function BoardDetail() {
       dispath(getTag());
 
       document.getElementById("closeModalEditAndDel")?.click();
+    } catch (error) {
+      console.error(error);
+      showToastError("Lỗi thêm tag");
+    }
+  };
+
+  // add tag to task
+  const handleAddTagToTask = async (idTag: string) => {
+    const chosedtag = tags.find((el) => el.id === idTag);
+    if (!chosedtag) {
+      showToastError("Không tìm thấy tag được chọn");
+      return;
+    }
+
+    const updatedTag: Tag = {
+      ...chosedtag,
+      task_id: [...chosedtag.task_id, idTaskCurrent!],
+    };
+
+    try {
+      await dispath(updateTag(updatedTag));
+
+      showToastSuccess("Gắn Tag thành công");
+      dispath(getTag());
+    } catch (error) {
+      console.error(error);
+      showToastError("Lỗi thêm tag");
+    }
+  };
+
+  const handleRemoveTagFromTask = async (idTag: string) => {
+    const chosedtag = tags.find((el) => el.id === idTag);
+    if (!chosedtag) {
+      showToastError("Không tìm thấy tag được chọn");
+      return;
+    }
+
+    if (!chosedtag.task_id.includes(idTaskCurrent!)) {
+      showToastError("Tag này chưa được gắn với task hiện tại");
+      return;
+    }
+
+    const updatedTaskIds = chosedtag.task_id.filter(
+      (taskId) => taskId !== idTaskCurrent
+    );
+
+    const updatedTag: Tag = {
+      ...chosedtag,
+      task_id: updatedTaskIds,
+    };
+
+    try {
+      await dispath(updateTag(updatedTag));
+
+      showToastSuccess("Gỡ Tag thành công");
+      dispath(getTag());
     } catch (error) {
       console.error(error);
       showToastError("Lỗi thêm tag");
@@ -980,7 +1064,16 @@ export default function BoardDetail() {
               <div className="keyboard">
                 <p className="title">Labels</p>
                 <div className="item-status">
-                  <input type="checkbox" />
+                  <input
+                    type="checkbox"
+                    checked={filterTags.noLabel}
+                    onChange={(e) =>
+                      setFilterTags((prev) => ({
+                        ...prev,
+                        noLabel: e.target.checked,
+                      }))
+                    }
+                  />
                   <img src={noLabels} alt="filter date" />
                   <span>No labels</span>
                 </div>
@@ -988,7 +1081,27 @@ export default function BoardDetail() {
                 {tags.map((el) => {
                   return (
                     <div className="item-status" key={el.id}>
-                      <input type="checkbox" />
+                      <input
+                        type="checkbox"
+                        checked={filterTags.selected.includes(el.id)}
+                        onChange={(e) => {
+                          setFilterTags((prev) => {
+                            if (e.target.checked) {
+                              return {
+                                ...prev,
+                                selected: [...prev.selected, el.id],
+                              };
+                            } else {
+                              return {
+                                ...prev,
+                                selected: prev.selected.filter(
+                                  (id) => id !== el.id
+                                ),
+                              };
+                            }
+                          });
+                        }}
+                      />
                       <div
                         className="color-label"
                         style={{ backgroundColor: el.color }}
@@ -1318,7 +1431,19 @@ export default function BoardDetail() {
                 {tags.map((el) => {
                   return (
                     <div className="itemLabel" key={el.id}>
-                      <input type="checkbox" />
+                      <input
+                        checked={
+                          el.task_id.includes(idTaskCurrent!) ? true : false
+                        }
+                        type="checkbox"
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            handleAddTagToTask(el.id);
+                          } else {
+                            handleRemoveTagFromTask(el.id);
+                          }
+                        }}
+                      />
                       <div
                         className="colorLabel"
                         style={{ backgroundColor: `${el.color}` }}

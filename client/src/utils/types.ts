@@ -37,7 +37,7 @@ export interface Task {
 
 export interface Tag {
   id: string;
-  task_id: string;
+  task_id: string[];
   content: string;
   color: string;
 }
