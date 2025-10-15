@@ -984,33 +984,20 @@ export default function BoardDetail() {
                   <img src={noLabels} alt="filter date" />
                   <span>No labels</span>
                 </div>
-                <div className="item-status">
-                  <input type="checkbox" />
-                  <div
-                    className="color-label"
-                    style={{ backgroundColor: "#4bce97" }}
-                  />
-                </div>
-                <div className="item-status">
-                  <input type="checkbox" />
-                  <div
-                    className="color-label"
-                    style={{ backgroundColor: "#f5cd47" }}
-                  />
-                </div>
-                <div className="item-status">
-                  <input type="checkbox" />
-                  <div
-                    className="color-label"
-                    style={{ backgroundColor: "#fea362" }}
-                  />
-                </div>
-                <div className="item-status">
-                  <input type="checkbox" />
-                  <select name="list-labels" id="list-labels">
-                    <option defaultValue="">Select labels</option>
-                  </select>
-                </div>
+
+                {tags.map((el) => {
+                  return (
+                    <div className="item-status" key={el.id}>
+                      <input type="checkbox" />
+                      <div
+                        className="color-label"
+                        style={{ backgroundColor: el.color }}
+                      >
+                        {el.content}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
