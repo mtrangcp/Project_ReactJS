@@ -42,7 +42,7 @@ import { useNavigate } from "react-router-dom";
 import { showToastError, showToastSuccess } from "../utils/toast";
 import { addList, deleteList, getList, updateList } from "../slices/listSlice";
 import { addTask, deleteTask, getTask, updateTask } from "../slices/taskSlice";
-import { addTag, getTag } from "../slices/tagSlice";
+import { addTag, getTag, updateTag } from "../slices/tagSlice";
 import { colorTags } from "../utils/backgrounds";
 
 export default function BoardDetail() {
@@ -538,9 +538,18 @@ export default function BoardDetail() {
 
   // add Tag
   const [valueInputAddTag, setValueInputAddTag] = useState<string>("");
+  const [valueColorAddTag, setValueColorAddTag] = useState<string>("");
+
+  const [tagSelectedToEdit, setTagSelectedToEdit] = useState<Tag>();
+  const [valueInputEditTag, setValueInputEditTag] = useState<string>("");
+  const [valueColorEditTag, setValueColorEditTag] = useState<string>("");
   const handleAddTag = async () => {
     if (!valueInputAddTag.trim()) {
       showToastError("Tiêu đề Tag không được trống");
+      return;
+    }
+    if (!valueColorAddTag) {
+      showToastError("Màu Tag không được trống");
       return;
     }
 
@@ -548,14 +557,47 @@ export default function BoardDetail() {
       id: uuidv4(),
       content: valueInputAddTag.trim(),
       task_id: "",
-      color: "",
+      color: valueColorAddTag,
     };
 
     try {
       await dispath(addTag(newTag));
 
       showToastSuccess("Thêm Tag thành công");
+      setValueInputAddTag("");
+      setValueColorAddTag("");
       dispath(getTag());
+    } catch (error) {
+      console.error(error);
+      showToastError("Lỗi thêm tag");
+    }
+  };
+
+  const handleEditTag = async () => {
+    if (!valueInputEditTag.trim()) {
+      showToastError("Tiêu đề Tag không được trống");
+      return;
+    }
+    if (!valueColorEditTag) {
+      showToastError("Màu Tag không được trống");
+      return;
+    }
+
+    const newTag: Tag = {
+      ...tagSelectedToEdit!,
+      content: valueInputEditTag.trim(),
+      color: valueColorEditTag,
+    };
+
+    try {
+      await dispath(updateTag(newTag));
+
+      showToastSuccess("Sửa Tag thành công");
+      setValueInputEditTag("");
+      setValueColorEditTag("");
+      dispath(getTag());
+
+      document.getElementById("closeModalEditAndDel")?.click();
     } catch (error) {
       console.error(error);
       showToastError("Lỗi thêm tag");
@@ -1301,6 +1343,8 @@ export default function BoardDetail() {
                         alt="edit"
                         id="openEditLabelModal"
                         onClick={() => {
+                          setTagSelectedToEdit(el);
+                          setValueInputEditTag(tagSelectedToEdit!.content);
                           const modal1 = document.getElementById(
                             "editAndDelLabelModal"
                           );
@@ -1389,8 +1433,11 @@ export default function BoardDetail() {
                     return (
                       <span
                         key={el}
-                        className="color-option"
+                        className={`color-option ${
+                          el === valueColorAddTag ? "color-chosed" : ""
+                        }`}
                         style={{ backgroundColor: el }}
+                        onClick={() => setValueColorAddTag(el)}
                       />
                     );
                   })}
@@ -1451,6 +1498,7 @@ export default function BoardDetail() {
                 data-bs-dismiss="modal"
                 aria-label="Close"
                 className="btn-close"
+                id="closeModalEditAndDel"
               />
             </div>
 
@@ -1461,6 +1509,8 @@ export default function BoardDetail() {
                   type="text"
                   className="form-control"
                   id="labelTitleInput"
+                  value={valueInputEditTag}
+                  onChange={(e) => setValueInputEditTag(e.target.value)}
                 />
               </div>
 
@@ -1471,8 +1521,11 @@ export default function BoardDetail() {
                     return (
                       <span
                         key={el}
-                        className="color-option"
+                        className={`color-option ${
+                          tagSelectedToEdit?.color === el ? "color-chosed" : ""
+                        }`}
                         style={{ backgroundColor: el }}
+                        onClick={() => setValueColorEditTag(el)}
                       />
                     );
                   })}
@@ -1481,7 +1534,11 @@ export default function BoardDetail() {
             </div>
 
             <div className="modal-footer">
-              <button className="btn btn-primary" id="saveEditLabelBtn">
+              <button
+                className="btn btn-primary"
+                id="saveEditLabelBtn"
+                onClick={handleEditTag}
+              >
                 Save
               </button>
               <button
